@@ -7494,3 +7494,158 @@ html[data-aurora="amber"] .app-page::after {
    此前 app-page 为 flex column，子项默认 flex-shrink:1 被压缩，
    内容超出时既不撑开容器也无法滚动（"显示不全面"的根因）。 */
 #page-profile > * { flex-shrink: 0; }
+
+/* ============================================================
+   v3.42 OpenAI 化：地点信息卡的操作区
+   规则：一屏一个主操作（墨色实心），其余降级为幽灵按钮；
+   无渐变、无高光、无文字阴影；危险操作红字幽灵；标签中性灰。
+   ============================================================ */
+/* 主操作：到这里去 → 墨色实心 */
+.btn-nav {
+    background: var(--cap-ink);
+    color: var(--cap-ink-text);
+    border: 1px solid transparent;
+    box-shadow: none;
+    text-shadow: none;
+    transition: opacity 0.15s ease, transform 0.09s ease-out;
+}
+.btn-nav:hover { transform: none; opacity: 0.88; box-shadow: none; }
+.btn-nav:active { transform: scale(0.97); }
+
+/* 次要操作：高德 / 分享 / 编辑 → 幽灵按钮 */
+.btn-amap, .btn-share, .btn-edit {
+    background: transparent;
+    color: var(--color-text);
+    border: 1px solid var(--cap-hairline);
+    box-shadow: none;
+    text-shadow: none;
+    transition: background 0.15s ease, transform 0.09s ease-out;
+}
+.btn-amap:hover, .btn-share:hover, .btn-edit:hover {
+    transform: none;
+    background: var(--cap-ink-soft);
+}
+.btn-amap:active, .btn-share:active, .btn-edit:active { transform: scale(0.97); }
+[data-theme="dark"] .btn-amap,
+[data-theme="dark"] .btn-share,
+[data-theme="dark"] .btn-edit { color: #F3F3F3; }
+
+/* 危险操作：删除 → 红字幽灵 */
+.btn-delete {
+    background: transparent;
+    color: #C62828;
+    border: 1px solid rgba(198, 40, 40, 0.28);
+    box-shadow: none;
+}
+.btn-delete:active { background: rgba(198, 40, 40, 0.08); }
+.btn-delete.armed { background: rgba(198, 40, 40, 0.12); }
+[data-theme="dark"] .btn-delete { color: #FF8A80; border-color: rgba(255, 138, 128, 0.32); }
+[data-theme="dark"] .btn-delete:active,
+[data-theme="dark"] .btn-delete.armed { background: rgba(255, 138, 128, 0.14); }
+
+/* 分类标签 → 中性灰药丸 */
+.info-title .tag {
+    background: var(--cap-ink-soft);
+    color: var(--color-text-light);
+    box-shadow: none;
+    letter-spacing: 0.3px;
+}
+[data-theme="dark"] .info-title .tag { color: #B4B4BC; }
+
+/* 操作区与备注里的 iconsax 图标对齐 */
+.info-actions iconsax-icon,
+.info-note label iconsax-icon,
+.info-fb-link iconsax-icon {
+    display: inline-flex;
+    vertical-align: -3px;
+    margin-right: 2px;
+}
+
+/* ============================================================
+   v3.43 OpenAI 化 2：卡片与胶囊按钮
+   规则：卡片=纯色（白/深灰）+ 大圆角 + 干净阴影，无玻璃模糊、
+   无光泽描边；内嵌块=浅灰填充；按钮=全圆角胶囊、无拟物光泽层。
+   ============================================================ */
+/* 卡片主体：纯色取代玻璃 */
+.modal-content {
+    background: #FFFFFF;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    border-radius: 24px;
+    box-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.06),
+        0 16px 48px rgba(0, 0, 0, 0.18);
+}
+.modal-content::before { display: none; }   /* 渐变光泽描边退场 */
+[data-theme="dark"] .modal-content {
+    background: #1C1C21;
+    box-shadow: 0 16px 48px rgba(0, 0, 0, 0.62);
+}
+
+/* 关闭按钮：中性 */
+.modal-close {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--color-text-light);
+    box-shadow: none;
+}
+.modal-close:hover { background: rgba(0, 0, 0, 0.10); color: var(--color-text); box-shadow: none; }
+[data-theme="dark"] .modal-close { background: rgba(255, 255, 255, 0.09); color: #98989F; }
+[data-theme="dark"] .modal-close:hover { background: rgba(255, 255, 255, 0.16); color: #F3F3F3; }
+
+/* 顶部图标块：中性浅底（去掉白卡高光） */
+.info-icon { background: #F2F2F4; box-shadow: none; }
+[data-theme="dark"] .info-icon { background: #2A2A2E; }
+
+/* 内嵌卡片（详细信息 / 我的备注）：浅灰填充、无边框 */
+.info-meta-collapse,
+.info-note {
+    background: #F7F7F8;
+    border: none;
+    box-shadow: none;
+    border-radius: 16px;
+}
+[data-theme="dark"] .info-meta-collapse,
+[data-theme="dark"] .info-note { background: #232328; }
+.info-meta-row .meta-emoji { background: transparent; box-shadow: none; }
+
+/* 胶囊按钮：全圆角 + 去掉底部光泽层 */
+.info-actions button { border-radius: 999px; }
+.info-actions button::after { display: none; }
+
+/* ============================================================
+   v3.44 胶囊凸显：次要按钮改灰色实心胶囊（ChatGPT 次要按钮样式）
+   上一版透明幽灵形态导致胶囊轮廓不可见——改为灰底实心胶囊，
+   与黑色主胶囊、浅红危险胶囊形成三级可见层级。
+   ============================================================ */
+.btn-amap, .btn-share, .btn-edit {
+    background: #F2F2F4;
+    color: var(--color-text);
+    border: none;
+    box-shadow: none;
+}
+.btn-amap:hover, .btn-share:hover, .btn-edit:hover { background: #E8E8EC; }
+.btn-amap:active, .btn-share:active, .btn-edit:active { background: #DFDFE4; }
+[data-theme="dark"] .btn-amap,
+[data-theme="dark"] .btn-share,
+[data-theme="dark"] .btn-edit {
+    background: #2A2A2E;
+    color: #F3F3F3;
+}
+[data-theme="dark"] .btn-amap:hover,
+[data-theme="dark"] .btn-share:hover,
+[data-theme="dark"] .btn-edit:hover { background: #333338; }
+
+/* 危险：浅红实心胶囊 */
+.btn-delete {
+    background: rgba(198, 40, 40, 0.08);
+    color: #C62828;
+    border: none;
+}
+.btn-delete:active { background: rgba(198, 40, 40, 0.14); }
+.btn-delete.armed { background: rgba(198, 40, 40, 0.18); }
+[data-theme="dark"] .btn-delete { background: rgba(255, 138, 128, 0.14); color: #FF8A80; }
+[data-theme="dark"] .btn-delete:active,
+[data-theme="dark"] .btn-delete.armed { background: rgba(255, 138, 128, 0.22); }
+
+/* 胶囊按钮统一内边距，轮廓更饱满 */
+.info-actions button { padding-left: 18px; padding-right: 18px; }

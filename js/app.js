@@ -980,24 +980,24 @@ function showBuildingInfo(id) {
             </div>
         </div>
         <div class="info-actions">
-            <button class="btn-nav" onclick="setNavEndpoint('${id}', 'end')">🎯 ${T('info.to')}</button>
-            <button class="btn-amap" onclick="openAmapNav('${id}')">🗺️ ${T('info.amap')}</button>
+            <button class="btn-nav" onclick="setNavEndpoint('${id}', 'end')"><iconsax-icon name="location-tick" type="linear" size="16" aria-hidden="true"></iconsax-icon> ${T('info.to')}</button>
+            <button class="btn-amap" onclick="openAmapNav('${id}')"><iconsax-icon name="map-1" type="linear" size="16" aria-hidden="true"></iconsax-icon> ${T('info.amap')}</button>
         </div>
         <div class="info-actions info-actions-secondary">
-            <button class="btn-share" id="shareBtn">🔗 ${T('info.share')}</button>
+            <button class="btn-share" id="shareBtn"><iconsax-icon name="share" type="linear" size="16" aria-hidden="true"></iconsax-icon> ${T('info.share')}</button>
         </div>
                 <div class="info-actions info-actions-manage">
-            <button class="btn-edit" id="editBtn">✏️ ${T('info.edit')}</button>
-            <button class="btn-delete" id="delBtn">🗑️ ${T('info.del')}</button>
+            <button class="btn-edit" id="editBtn"><iconsax-icon name="edit-2" type="linear" size="16" aria-hidden="true"></iconsax-icon> ${T('info.edit')}</button>
+            <button class="btn-delete" id="delBtn"><iconsax-icon name="trash" type="linear" size="16" aria-hidden="true"></iconsax-icon> ${T('info.del')}</button>
         </div>
         <div class="info-note">
-            <label for="noteText">📝 ${T('info.note')}</label>
+            <label for="noteText"><iconsax-icon name="note-2" type="linear" size="15" aria-hidden="true"></iconsax-icon> ${T('info.note')}</label>
             <textarea id="noteText" maxlength="100" rows="2"
                 placeholder="${T('info.note.ph')}">${Store.getNote(id).replace(/</g, '&lt;')}</textarea>
             <span class="note-hint" id="noteHint">${Store.getNote(id) ? T('info.note.saved') : T('info.note.local')}</span>
         </div>
         <div class="info-feedback">
-            <button class="info-fb-link" id="poiFeedbackBtn">📝 ${T('poi.feedback.entry')}</button>
+            <button class="info-fb-link" id="poiFeedbackBtn"><iconsax-icon name="warning-2" type="linear" size="14" aria-hidden="true"></iconsax-icon> ${T('poi.feedback.entry')}</button>
         </div>
     `;
     ensureSheetHandle(content);   // 手势抽屉手柄（innerHTML 会重建，需补挂）
