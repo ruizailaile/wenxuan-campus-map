@@ -356,7 +356,7 @@ const AppShell = {
                     upd.classList.remove('busy');
                     upd.textContent = '已最新';
                     const desc = document.getElementById('updateDesc');
-                    if (desc) desc.textContent = '已是最新版本 v3.39（' + new Date().toLocaleDateString('zh-CN') + '）';
+                    if (desc) desc.textContent = '已是最新版本 v3.40（' + new Date().toLocaleDateString('zh-CN') + '）';
                     if (typeof showToast === 'function') showToast('已是最新版本', 'success', 1600);
                     if (navigator.serviceWorker) {
                         navigator.serviceWorker.getRegistrations?.()
@@ -1111,6 +1111,8 @@ const AppShell = {
         });
 
         updateDesc();
+        // v3.40：暴露给全局语言切换钩子（任何路径切换语言后刷新"语言"行描述）
+        window.__refreshLangDesc = updateDesc;
     },
 
     /** 把玻璃透明度/模糊度写入 :root 内联样式（供 CSS 变量读取） */

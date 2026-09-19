@@ -708,7 +708,7 @@
         'settings.poi.default': { zh: '未修改过官方地点', en: 'No official places modified', tw: '未修改過官方地點', ja: '公式地点は未変更', ko: '공식 장소 수정 없음', th: 'ยังไม่แก้ไขสถานที่ทางการ', vi: 'Chưa sửa địa điểm chính thức', ms: 'Tiada tempat rasmi diubah', id: 'Belum mengubah tempat resmi', fil: 'Walang binagong opisyal na lugar' },
         'settings.reset': { zh: '恢复默认', en: 'Restore', tw: '恢復預設', ja: '既定に戻す', ko: '기본값 복원', th: 'คืนค่า', vi: 'Khôi phục', ms: 'Pulihkan', id: 'Pulihkan', fil: 'Ibalik' },
         'settings.update': { zh: '检查更新', en: 'Check for Updates', tw: '檢查更新', ja: '更新を確認', ko: '업데이트 확인', th: 'ตรวจสอบอัปเดต', vi: 'Kiểm tra cập nhật', ms: 'Semak Kemas Kini', id: 'Periksa Pembaruan', fil: 'Tingnan ang Update' },
-        'settings.update.latest': { zh: '当前为优化版 v3.39', en: 'Design refinement v3.39', tw: '當前為優化版 v3.39', ja: '最適化版 v3.39', ko: '최적화 버전 v3.39', th: 'เวอร์ชันปรับปรุง v3.39', vi: 'Bản tối ưu v3.39', ms: 'Versi dipertingkat v3.39', id: 'Versi penyempurnaan v3.39', fil: 'Pinahusay na bersyon v3.39' },
+        'settings.update.latest': { zh: '当前为优化版 v3.40', en: 'Design refinement v3.40', tw: '當前為優化版 v3.40', ja: '最適化版 v3.40', ko: '최적화 버전 v3.40', th: 'เวอร์ชันปรับปรุง v3.40', vi: 'Bản tối ưu v3.40', ms: 'Versi dipertingkat v3.40', id: 'Versi penyempurnaan v3.40', fil: 'Pinahusay na bersyon v3.40' },
         'settings.aurora': { zh: '极光灵感主题', en: 'Aurora Themes', tw: '極光靈感主題', ja: 'オーロラテーマ', ko: '오로라 테마', th: 'ธีมออโรรา', vi: 'Chủ đề Aurora', ms: 'Tema Aurora', id: 'Tema Aurora', fil: 'Tema Aurora' },
     'settings.aurora.desc': { zh: '换一组背景光斑配色，轮播每天自动换新', en: 'Recolor the ambient glow; Auto rotates daily', tw: '換一組背景光斑配色，輪播每天自動換新', ja: '背景の光の色を替える。ローテートは毎日自動', ko: '배경 빛무리 색을 바꾸고 순환은 매일 자동', th: 'เปลี่ยนสีแสงพื้นหลัง หมุนเวียนอัตโนมัติทุกวัน', vi: 'Đổi màu vầng sáng nền, tự xoay vòng mỗi ngày', ms: 'Tukar warna cahaya latar; Auto setiap hari', id: 'Ganti warna cahaya latar; Auto tiap hari', fil: 'Palitan ang kulay ng liwanag; Awtomatik araw-araw' },
     'settings.aurora.aurora': { zh: '极光', en: 'Aurora', tw: '極光', ja: 'オーロラ', ko: '오로라', th: 'ออโรรา', vi: 'Aurora', ms: 'Aurora', id: 'Aurora', fil: 'Aurora' },
@@ -923,7 +923,7 @@
             current = code;
             if (persist !== false) localStorage.setItem(STORAGE_KEY, code);
             document.documentElement.lang = (code === 'zh' ? 'zh-CN' : code === 'tw' ? 'zh-TW' : code);
-            // v3.39 修复：applyStatic 是 I18N 的方法，此前裸调用抛 ReferenceError，
+            // v3.40 修复：applyStatic 是 I18N 的方法，此前裸调用抛 ReferenceError，
             // 导致静态文案与 __onLangChange 重渲染全部中断（"必须回首页才能换语言"）
             I18N.applyStatic();
             if (typeof window.__onLangChange === 'function') window.__onLangChange(code);

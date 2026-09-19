@@ -1,7 +1,45 @@
 {
   "version": 1,
   "createdAt": "2026-08-30T15:27:27.207Z",
-  "overrides": {},
+  "overrides": {
+    "b_teach1": {
+      "name": "1号教学楼",
+      "category": "teaching",
+      "desc": "靠近主入口，承担公共基础课程。",
+      "updatedAt": "2026-09-19T16:24:03.804Z"
+    },
+    "b_1788178407302": {
+      "name": "第一餐厅",
+      "category": "canteen",
+      "desc": "食堂",
+      "updatedAt": "2026-09-19T16:24:17.578Z"
+    },
+    "b_1788180339533": {
+      "name": "29栋教师公寓",
+      "category": "faculty",
+      "updatedAt": "2026-09-19T16:24:53.762Z"
+    },
+    "b_1788180285396": {
+      "name": "教工食堂",
+      "category": "canteen",
+      "updatedAt": "2026-09-19T16:25:02.581Z"
+    },
+    "b_1788179149446": {
+      "name": "演艺中心",
+      "category": "academic",
+      "updatedAt": "2026-09-19T16:27:36.227Z"
+    },
+    "b_1788179124930": {
+      "name": "学术中心",
+      "category": "academic",
+      "updatedAt": "2026-09-19T16:27:50.332Z"
+    },
+    "b_1788178486131": {
+      "name": "学生宿舍15栋#",
+      "category": "dorm",
+      "updatedAt": "2026-09-19T16:28:12.043Z"
+    }
+  },
   "deleted": [],
   "custom": [],
   "syncedAt": "2026-09-19T15:56:48.161Z",

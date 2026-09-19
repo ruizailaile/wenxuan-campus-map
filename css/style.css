@@ -1639,7 +1639,7 @@ iconsax-icon { display: inline-flex; line-height: 1; vertical-align: -0.14em; }
     display: flex;
     flex-direction: column;
     gap: 10px;
-    z-index: 1500;
+    z-index: 5900;   /* v3.40 修复：原 1500 在设置页（3000）等覆盖层下不可见 */
     pointer-events: none;
     align-items: center;
 }
@@ -6151,7 +6151,7 @@ body, .liquid-glass, .app-page, #tabbar, .modal-content, .so-panel {
 .lang-picker {
     position: fixed;
     inset: 0;
-    z-index: 1200;
+    z-index: 3300;   /* v3.40 修复：原 1200 被设置页（3000）遮挡，弹层不可见 */
     display: flex;
     align-items: flex-end;
     justify-content: center;
@@ -7296,3 +7296,201 @@ html[data-aurora="amber"] #app::after {
 #map[data-tier="low"] .poi:not(.poi-key) { opacity: 1; pointer-events: auto; }
 .poi-key .poi-chip { display: block; }
 #map[data-tier="high"] .poi .poi-chip { display: block; }
+
+/* ============================================================
+   v3.40 深色主题补全（地图页与浮层）
+   此前 #map / 搜索栏 / 视图切换 / 缩放控件等为硬编码浅色，
+   深色主题下地图外围留白与控件仍是白的（"切换后显示错乱"）。
+   ============================================================ */
+[data-theme="dark"] #map {
+    background: #0f1116;   /* 地图图片之外的留白随主题 */
+}
+[data-theme="dark"] .map-search-bar {
+    background: rgba(28, 30, 42, 0.92);
+    box-shadow:
+        0 6px 20px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+[data-theme="dark"] .msb-text { color: #9A9AA0; }
+[data-theme="dark"] .view-toggle {
+    color: #EDE8DE;
+    background: rgba(36, 38, 64, 0.82);
+    box-shadow:
+        0 1px 3px rgba(0, 0, 0, 0.3),
+        0 8px 24px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .search-fab {
+    color: #C6CADE;
+    background: rgba(36, 38, 64, 0.72);
+    box-shadow:
+        0 4px 16px rgba(0, 0, 0, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.10);
+}
+[data-theme="dark"] .tour-mode-btn {
+    background: rgba(36, 38, 64, 0.72);
+    color: #EDE8DE;
+}
+[data-theme="dark"] .leaflet-control-zoom a {
+    background: rgba(36, 38, 64, 0.88) !important;
+    color: #EDE8DE !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+}
+[data-theme="dark"] .leaflet-popup-content-wrapper,
+[data-theme="dark"] .leaflet-popup-tip {
+    background: rgba(30, 32, 46, 0.96) !important;
+    color: #EDE8DE !important;
+}
+[data-theme="dark"] .leaflet-popup-content { color: #EDE8DE !important; }
+[data-theme="dark"] .compass-n {
+    background: rgba(36, 38, 64, 0.9);
+    color: #EDE8DE;
+}
+[data-theme="dark"] .legend {
+    background: rgba(28, 30, 42, 0.88);
+    color: #C6CADE;
+}
+[data-theme="dark"] .legend-item { color: #C6CADE; }
+
+/* ============================================================
+   v3.40 深色主题补全 2（失物招领 · 聊天 · 搜索浮层）
+   分类 chips 仍是暖棕（v3.30 清扫漏网）、tab/视图切换深色对比度不足。
+   ============================================================ */
+[data-theme="dark"] .lf-tabs { background: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .lf-tab,
+[data-theme="dark"] .lf-view { color: #A9AEC6; }
+[data-theme="dark"] .lf-tab.active,
+[data-theme="dark"] .lf-view.active { background: #262840; color: #F3F3F3; }
+[data-theme="dark"] .lf-cat,
+[data-theme="dark"] .lf-cat-sel {
+    background: rgba(255, 255, 255, 0.10);
+    color: #B4B4BC;
+    border-color: rgba(255, 255, 255, 0.14);
+}
+[data-theme="dark"] .lf-cat.active,
+[data-theme="dark"] .lf-cat-sel.active {
+    background: var(--cap-ink);
+    color: #0D0D0F;
+    border-color: transparent;
+}
+[data-theme="dark"] .lf-empty,
+[data-theme="dark"] .lf-empty p { color: #98989F; }
+[data-theme="dark"] .lf-field-hint,
+[data-theme="dark"] .lf-detail-row .k { color: #98989F; }
+[data-theme="dark"] .lf-type-switch { background: rgba(255, 255, 255, 0.08); }
+[data-theme="dark"] .lf-type-switch button { color: #98989F; }
+[data-theme="dark"] .lf-type-switch button.active { background: var(--cap-ink); color: #0D0D0F; }
+[data-theme="dark"] .lf-card-foot,
+[data-theme="dark"] .lf-card-status { color: #98989F; }
+[data-theme="dark"] .chat-room-meta,
+[data-theme="dark"] .chat-room-hd,
+[data-theme="dark"] .chat-empty,
+[data-theme="dark"] .chat-msg-name { color: #98989F; }
+[data-theme="dark"] .chat-msg-time { color: #8A8A90; }
+[data-theme="dark"] .chat-room-item { background: rgba(255, 255, 255, 0.07); }
+[data-theme="dark"] .so-cat { background: rgba(255, 255, 255, 0.09); color: #C6CADE; }
+[data-theme="dark"] .so-inputwrap input { color: #EDE8DE; }
+[data-theme="dark"] .so-clear { color: #98989F; }
+
+/* ============================================================
+   v3.41 极光主题全站覆盖 + 覆盖页滚动
+   1) .app-page（个人中心/设置/失物招领/聊天）原为不透明纯色，
+      完全盖住 #app 的极光光斑——改为半透明，极光主题（极光/晨曦/
+      夜航/琥珀/轮播）在全站可见；
+   2) 覆盖页此前 overflow: visible，内容超出屏幕无法滚动
+      （个人中心底部条目看不到）——补 overflow-y: auto。
+   ============================================================ */
+.app-page {
+    background: #F7F7F8;   /* 兜底；实际由 ::before 极光层覆盖 */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+[data-theme="dark"] .app-page {
+    background: #131316;
+}
+/* 宽屏适配：覆盖页内容限宽居中，避免卡片被拉满整个屏幕 */
+@media (min-width: 720px) {
+    .app-page > .ap-header,
+    .app-page > #accountCard,
+    .app-page > .stat-row,
+    .app-page > .profile-section,
+    .app-page > .entry-list,
+    .app-page > .settings-scroll {
+        width: 100%;
+        max-width: 720px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* ---------- v3.41 覆盖页极光：让极光主题（极光/晨曦/夜航/琥珀）全站生效 ---------- */
+.app-page::before,
+.app-page::after {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+}
+.app-page::before {
+    background:
+        radial-gradient(46vw 42vw at 8% 12%, rgba(120, 170, 255, 0.42) 0%, transparent 100%),
+        radial-gradient(40vw 46vw at 22% 88%, rgba(157, 123, 236, 0.32) 0%, transparent 100%),
+        radial-gradient(44vw 40vw at 50% 30%, rgba(255, 163, 107, 0.22) 0%, transparent 100%),
+        linear-gradient(150deg, #eef2fb 0%, #e6ecfa 45%, #f0eaf3 100%);
+}
+.app-page::after {
+    background:
+        radial-gradient(38vw 42vw at 88% 78%, rgba(52, 180, 124, 0.26) 0%, transparent 100%),
+        radial-gradient(30vw 30vw at 78% 10%, rgba(244, 115, 168, 0.22) 0%, transparent 100%);
+}
+[data-theme="dark"] .app-page::before {
+    background:
+        radial-gradient(46vw 42vw at 8% 12%, rgba(70, 100, 190, 0.26) 0%, transparent 100%),
+        radial-gradient(40vw 46vw at 22% 88%, rgba(110, 80, 190, 0.20) 0%, transparent 100%),
+        radial-gradient(44vw 40vw at 50% 30%, rgba(200, 110, 60, 0.10) 0%, transparent 100%),
+        linear-gradient(150deg, #05060a 0%, #000000 45%, #07060b 100%);
+}
+[data-theme="dark"] .app-page::after {
+    background:
+        radial-gradient(38vw 42vw at 88% 78%, rgba(40, 130, 100, 0.15) 0%, transparent 100%),
+        radial-gradient(30vw 30vw at 78% 10%, rgba(180, 70, 120, 0.12) 0%, transparent 100%);
+}
+html[data-aurora="dawn"] .app-page::before {
+    background:
+        radial-gradient(46vw 42vw at 8% 12%, rgba(255, 178, 122, 0.42) 0%, transparent 100%),
+        radial-gradient(40vw 46vw at 22% 88%, rgba(244, 115, 168, 0.30) 0%, transparent 100%),
+        radial-gradient(44vw 40vw at 50% 30%, rgba(245, 185, 61, 0.28) 0%, transparent 100%);
+}
+html[data-aurora="dawn"] .app-page::after {
+    background:
+        radial-gradient(38vw 42vw at 88% 78%, rgba(255, 138, 101, 0.28) 0%, transparent 100%),
+        radial-gradient(30vw 30vw at 78% 10%, rgba(255, 210, 140, 0.34) 0%, transparent 100%);
+}
+html[data-aurora="night"] .app-page::before {
+    background:
+        radial-gradient(46vw 42vw at 8% 12%, rgba(90, 140, 230, 0.42) 0%, transparent 100%),
+        radial-gradient(40vw 46vw at 22% 88%, rgba(70, 90, 200, 0.32) 0%, transparent 100%),
+        radial-gradient(44vw 40vw at 50% 30%, rgba(80, 200, 220, 0.22) 0%, transparent 100%);
+}
+html[data-aurora="night"] .app-page::after {
+    background:
+        radial-gradient(38vw 42vw at 88% 78%, rgba(60, 110, 190, 0.30) 0%, transparent 100%),
+        radial-gradient(30vw 30vw at 78% 10%, rgba(120, 140, 240, 0.26) 0%, transparent 100%);
+}
+html[data-aurora="amber"] .app-page::before {
+    background:
+        radial-gradient(46vw 42vw at 8% 12%, rgba(232, 161, 61, 0.38) 0%, transparent 100%),
+        radial-gradient(40vw 46vw at 22% 88%, rgba(201, 122, 61, 0.32) 0%, transparent 100%),
+        radial-gradient(44vw 40vw at 50% 30%, rgba(255, 196, 120, 0.28) 0%, transparent 100%);
+}
+html[data-aurora="amber"] .app-page::after {
+    background:
+        radial-gradient(38vw 42vw at 88% 78%, rgba(214, 148, 96, 0.30) 0%, transparent 100%),
+        radial-gradient(30vw 30vw at 78% 10%, rgba(255, 176, 88, 0.26) 0%, transparent 100%);
+}
+
+/* ---------- v3.41 修正：个人中心 flex 子项禁止收缩 ----------
+   此前 app-page 为 flex column，子项默认 flex-shrink:1 被压缩，
+   内容超出时既不撑开容器也无法滚动（"显示不全面"的根因）。 */
+#page-profile > * { flex-shrink: 0; }

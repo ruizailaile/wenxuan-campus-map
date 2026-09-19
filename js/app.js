@@ -67,7 +67,12 @@ const _poiOverriddenName = new Set();   // 启动时标记：哪些官方地点�
 function _isOfficial(b) { return !!ORIG_POI[b.id]; }
 function displayName(b) {
     if (!b) return '';
-    if (_isOfficial(b) && !_poiOverriddenName.has(b.id) && window.I18N) return window.I18N.poi(b.id) || b.name;
+    if (_isOfficial(b) && !_poiOverriddenName.has(b.id) && window.I18N) {
+        // v3.40 修复：I18N.poi 无翻译时返回 id（真值），曾导致 ?? b.name 失效、列表显示 b_xxx；
+        // 这里显式判断翻译是否等于 id，无翻译回退到地点原名。
+        const t = window.I18N.poi(b.id);
+        return (t && t !== b.id) ? t : b.name;
+    }
     return b.name;
 }
 function displayDesc(b) {
@@ -2306,6 +2311,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         renderBuildingList();       // 列表重绘
         populateNavSelects();       // 导航下拉重绘
         renderQuickChips();         // v3.21：热门地点 chips 文案翻译
+        if (typeof window.__refreshLangDesc === 'function') window.__refreshLangDesc();   // v3.40：语言行描述
         if (typeof renderSearchOverlay === 'function') renderSearchOverlay();
         // 若详情弹窗正打开，刷新其内容
         if (state.selectedId && !document.getElementById('info-modal').classList.contains('hidden')) {
