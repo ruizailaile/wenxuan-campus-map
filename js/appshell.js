@@ -356,7 +356,7 @@ const AppShell = {
                     upd.classList.remove('busy');
                     upd.textContent = '已最新';
                     const desc = document.getElementById('updateDesc');
-                    if (desc) desc.textContent = '已是最新版本 v3.38（' + new Date().toLocaleDateString('zh-CN') + '）';
+                    if (desc) desc.textContent = '已是最新版本 v3.39（' + new Date().toLocaleDateString('zh-CN') + '）';
                     if (typeof showToast === 'function') showToast('已是最新版本', 'success', 1600);
                     if (navigator.serviceWorker) {
                         navigator.serviceWorker.getRegistrations?.()

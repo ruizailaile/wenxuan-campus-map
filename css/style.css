@@ -7286,3 +7286,13 @@ html[data-aurora="amber"] #app::after {
     top: 10px;
     margin: 0;
 }
+
+/* ============================================================
+   v3.39 显示恢复（用户反馈：地点与名称"消失"）
+   1) 全览（low）不再隐藏非重点点——59 点均为官方数据，需随时可见；
+   2) 名称牌恢复：重点点（poi-key）全层级常显；放大（high）后所有点显示名称。
+   （生活服务小点 poi-t2 仍在 mid 层隐藏，放大后显示）
+   ============================================================ */
+#map[data-tier="low"] .poi:not(.poi-key) { opacity: 1; pointer-events: auto; }
+.poi-key .poi-chip { display: block; }
+#map[data-tier="high"] .poi .poi-chip { display: block; }
