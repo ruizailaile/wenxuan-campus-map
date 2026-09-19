@@ -1,0 +1,37 @@
+classDiagram
+    class Worker {
+        +route(method, pattern, handler)
+        +json(data, status)
+    }
+    class LfService {
+        +lfReadAll(env) posts
+        +lfWrite(env, post)
+        +lfPublic(post, opts)
+        +validateLfInput(body)
+    }
+    class FeedbackService {
+        +ensurePoiFeedbackSchema(env)
+        +insertFeedback(env, fb)
+        +validateFeedback(body)
+    }
+    class ChatService {
+        +msgPublic(row)
+        +senderProfiles(env, uids)
+        +roomEtag(env, room)
+        +roomHasSystem(env, room)
+        +writeSystemMessage(env, fromUid, toUid, text)
+    }
+    class D1 {
+        +messages
+        +lf_posts
+        +poi_feedback
+        +friends
+        +users
+    }
+    Worker --> LfService : 调用
+    Worker --> FeedbackService : 调用
+    Worker --> ChatService : 调用
+    LfService --> D1 : env.DB
+    FeedbackService --> D1 : env.DB
+    ChatService --> D1 : env.DB
+    LfService ..> ChatService : 撤回时写系统消息

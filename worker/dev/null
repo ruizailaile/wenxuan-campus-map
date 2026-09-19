@@ -1,0 +1,1195 @@
+import seed from "../../data/seed.json";
+import { checkMessage, isBanned, scan } from "./content-guard.js";
+const WENXUAN_GRADES = ["2026\u7EA7", "2025\u7EA7", "2024\u7EA7"];
+const WENXUAN_COLLEGES = {
+  "\u6559\u80B2\u5B66\u9662": ["\u5B66\u524D\u6559\u80B2", "\u65E9\u671F\u6559\u80B2", "\u4E2D\u6587"],
+  "\u4F53\u80B2\u5B66\u9662": ["\u8FD0\u52A8\u8BAD\u7EC3", "\u793E\u4F1A\u4F53\u80B2"],
+  "\u62A4\u7406\u4E00\u9662": ["\u62A4\u7406"],
+  "\u62A4\u7406\u4E8C\u9662": ["\u62A4\u7406"],
+  "\u5065\u5EB7\u5B66\u9662": ["\u53E3\u8154\u533B\u5B66\u6280\u672F", "\u5EB7\u590D\u6CBB\u7597\u6280\u672F", "\u836F\u5B66", "\u4E2D\u836F\u5B66", "\u5E94\u6025\u6551\u63F4\u6280\u672F", "\u667A\u6167\u5065\u5EB7\u517B\u8001\u670D\u52A1\u4E0E\u7BA1\u7406", "\u667A\u6167\u5065\u5EB7\u517B\u8001\u670D\u52A1\u4E0E\u7BA1\u7406\uFF08\u9AD8\u7EA7\u517B\u8001\u673A\u6784\u8001\u5E74\u7167\u62A4\uFF09", "\u667A\u6167\u5065\u5EB7\u517B\u8001\u670D\u52A1\u4E0E\u7BA1\u7406\uFF08\u8001\u5E74\u517B\u751F\u670D\u52A1\uFF09"],
+  "\u7BA1\u7406\u5B66\u9662": ["\u6C11\u822A\u8FD0\u8F93\u670D\u52A1", "\u8D22\u7A0E\u5927\u6570\u636E\u5E94\u7528", "\u7A7A\u4E2D\u4E58\u52A1", "\u9AD8\u901F\u94C1\u8DEF\u5BA2\u8FD0\u670D\u52A1", "\u5927\u6570\u636E\u4E0E\u4F1A\u8BA1", "\u91D1\u878D\u670D\u52A1\u4E0E\u7BA1\u7406", "\u7535\u5B50\u5546\u52A1", "\u5E02\u573A\u8425\u9500", "\u667A\u80FD\u7269\u6D41\u6280\u672F", "\u65C5\u6E38\u7BA1\u7406"],
+  "\u57CE\u5E02\u5B66\u9662": ["\u667A\u80FD\u5EFA\u9020\u6280\u672F", "\u5EFA\u7B51\u8BBE\u8BA1", "\u5EFA\u7B51\u8BBE\u8BA1\uFF08\u88C5\u9970\u88C5\u6F62\uFF09", "\u5EFA\u7B51\u5DE5\u7A0B\u6280\u672F"],
+  "\u667A\u80FD\u5236\u9020\u5B66\u9662": ["\u673A\u68B0\u5236\u9020\u53CA\u81EA\u52A8\u5316", "\u6570\u63A7\u6280\u672F", "\u5DE5\u4E1A\u673A\u5668\u4EBA\u6280\u672F", "\u65E0\u4EBA\u673A\u5E94\u7528\u6280\u672F", "\u5E94\u7528\u7535\u5B50\u6280\u672F", "\u7535\u5B50\u4FE1\u606F\u5DE5\u7A0B\u6280\u672F"],
+  "\u6C7D\u8F66\u5B66\u9662": ["\u65B0\u80FD\u6E90\u6C7D\u8F66\u6280\u672F", "\u667A\u80FD\u7F51\u8054\u6C7D\u8F66\u6280\u672F", "\u6C7D\u8F66\u6280\u672F\u670D\u52A1\u4E0E\u8425\u9500", "\u6C7D\u8F66\u68C0\u6D4B\u4E0E\u7EF4\u4FEE\u6280\u672F"],
+  "\u4F20\u5A92\u5B66\u9662": ["\u878D\u5A92\u4F53\u6280\u672F\u4E0E\u8FD0\u8425", "\u827A\u672F\u8BBE\u8BA1", "\u7F51\u7EDC\u76F4\u64AD\u4E0E\u8FD0\u8425", "\u6E38\u620F\u827A\u672F\u8BBE\u8BA1"],
+  "\u8BA1\u7B97\u673A\u5B66\u9662": ["\u667A\u80FD\u6280\u672F", "\u5927\u6570\u636E\u6280\u672F", "\u8BA1\u7B97\u673A\u5E94\u7528\u6280\u672F", "\u8BA1\u7B97\u673A\u7F51\u7EDC\u6280\u672F", "\u6570\u5B57\u5A92\u4F53\u6280\u672F", "\u7269\u8054\u7F51\u5E94\u7528\u6280\u672F", "\u52A8\u6F2B\u5236\u4F5C\u6280\u672F", "\u4EBA\u5DE5\u667A\u80FD\u6280\u672F\u5E94\u7528"]
+};
+const WENXUAN_SCHOOL = "\u56DB\u5DDD\u6587\u8F69\u804C\u4E1A\u5B66\u9662";
+function validStudentInfo(grade, college, major) {
+  if (!grade || !WENXUAN_GRADES.includes(grade)) return false;
+  if (!college || !WENXUAN_COLLEGES[college]) return false;
+  if (!major || !WENXUAN_COLLEGES[college].includes(major)) return false;
+  return true;
+}
+const MAP_W = 1e3;
+const MAP_H = 500;
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const TOKEN_TTL = 30 * 24 * 3600 * 1e3;
+const CODE_TTL = 10 * 60 * 1e3;
+const CODE_COOLDOWN = 60 * 1e3;
+const PBKDF2_ITER = 15e3;
+const EDITABLE_FIELDS = ["name", "category", "x", "y", "desc", "hours", "phone", "floors"];
+const te = new TextEncoder();
+function bufToHex(buf) {
+  return [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, "0")).join("");
+}
+function hexToBuf(hex) {
+  const out = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < out.length; i++) out[i] = parseInt(hex.slice(i * 2, i * 2 + 2), 16);
+  return out;
+}
+function randomHex(bytes) {
+  const b = new Uint8Array(bytes);
+  crypto.getRandomValues(b);
+  return bufToHex(b);
+}
+function b64url(str) {
+  return btoa(str).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function unb64url(str) {
+  const b = str.replace(/-/g, "+").replace(/_/g, "/");
+  return atob(b + "=".repeat((4 - b.length % 4) % 4));
+}
+function timingSafeEqual(a, b) {
+  if (typeof a !== "string" || typeof b !== "string" || a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  return diff === 0;
+}
+async function hashPassword(password, saltHex) {
+  const key = await crypto.subtle.importKey("raw", te.encode(String(password)), "PBKDF2", false, ["deriveBits"]);
+  const bits = await crypto.subtle.deriveBits(
+    { name: "PBKDF2", hash: "SHA-256", salt: hexToBuf(saltHex), iterations: PBKDF2_ITER },
+    key,
+    256
+  );
+  return bufToHex(bits);
+}
+async function hmac(payload, secret) {
+  const key = await crypto.subtle.importKey("raw", te.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+  const sig = await crypto.subtle.sign("HMAC", key, te.encode(payload));
+  return btoa(String.fromCharCode(...new Uint8Array(sig))).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+function signToken(uid, secret) {
+  const payload = b64url(JSON.stringify({ uid, exp: Date.now() + TOKEN_TTL }));
+  return hmac(payload, secret).then((sig) => payload + "." + sig);
+}
+async function verifyToken(token, secret) {
+  if (typeof token !== "string" || token.indexOf(".") < 0) return null;
+  const dot = token.indexOf(".");
+  const payload = token.slice(0, dot), sig = token.slice(dot + 1);
+  const expect = await hmac(payload, secret);
+  if (!timingSafeEqual(sig, expect)) return null;
+  try {
+    const data = JSON.parse(unb64url(payload));
+    if (!data.uid || typeof data.exp !== "number" || data.exp < Date.now()) return null;
+    return data.uid;
+  } catch {
+    return null;
+  }
+}
+function freshDb() {
+  return {
+    version: seed.version || 1,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    overrides: {},
+    // { id: {name?, category?, x?, y?, desc?, ...} }
+    deleted: [],
+    // 被软删除的内置地点 id
+    custom: []
+    // 用户共建地点
+  };
+}
+async function readDb(env) {
+  const row = await env.DB.prepare("SELECT data FROM db WHERE id = 1").first();
+  if (row) {
+    const db = JSON.parse(row.data);
+    const base = freshDb();
+    for (const k of Object.keys(base)) {
+      if (db[k] === void 0) db[k] = base[k];
+    }
+    return db;
+  }
+  await env.DB.prepare("INSERT INTO db (id, data) VALUES (1, ?) ON CONFLICT(id) DO NOTHING").bind(JSON.stringify(freshDb())).run();
+  const again = await env.DB.prepare("SELECT data FROM db WHERE id = 1").first();
+  return JSON.parse(again.data);
+}
+async function writeDb(env, db) {
+  await env.DB.prepare("INSERT INTO db (id, data) VALUES (1, ?) ON CONFLICT(id) DO UPDATE SET data = excluded.data").bind(JSON.stringify(db)).run();
+}
+async function findUserById(env, id) {
+  if (!id) return null;
+  const row = await env.DB.prepare("SELECT data FROM users WHERE id = ?").bind(id).first();
+  if (!row) return null;
+  try {
+    return JSON.parse(row.data);
+  } catch {
+    return null;
+  }
+}
+async function findUserByEmail(env, email) {
+  if (!email) return null;
+  const row = await env.DB.prepare("SELECT data FROM users WHERE email = ?").bind(email).first();
+  if (!row) return null;
+  try {
+    return JSON.parse(row.data);
+  } catch {
+    return null;
+  }
+}
+async function saveUser(env, user) {
+  await env.DB.prepare(
+    "INSERT INTO users (id, email, data, created_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO UPDATE SET data = excluded.data, email = excluded.email, created_at = excluded.created_at"
+  ).bind(user.id, user.email, JSON.stringify(user), user.createdAt).run();
+}
+async function listUsersBrief(env, exceptId, limit = 500) {
+  const { results } = await env.DB.prepare(
+    `SELECT id, email, data, created_at FROM users WHERE id != ? LIMIT ?`
+  ).bind(exceptId, limit).all();
+  return results.map((r) => {
+    try {
+      const u = JSON.parse(r.data);
+      return publicProfile(u);
+    } catch {
+      return null;
+    }
+  }).filter(Boolean);
+}
+async function countUsers(env) {
+  const row = await env.DB.prepare("SELECT COUNT(*) AS n FROM users").first();
+  return row && row.n || 0;
+}
+async function getCode(env, key) {
+  const row = await env.DB.prepare("SELECT data FROM codes WHERE key = ?").bind(key).first();
+  if (!row) return null;
+  try {
+    return JSON.parse(row.data);
+  } catch {
+    return null;
+  }
+}
+async function saveCode(env, key, data) {
+  await env.DB.prepare(
+    "INSERT INTO codes (key, data) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET data = excluded.data"
+  ).bind(key, JSON.stringify(data)).run();
+}
+async function delCode(env, key) {
+  await env.DB.prepare("DELETE FROM codes WHERE key = ?").bind(key).run();
+}
+async function sweepCodes(env) {
+  try {
+    const { results } = await env.DB.prepare("SELECT key, data FROM codes LIMIT 200").all();
+    const now = Date.now();
+    const dead = [];
+    for (const r of results) {
+      try {
+        const d = JSON.parse(r.data);
+        if (d.expires && d.expires < now) dead.push(r.key);
+      } catch {
+        dead.push(r.key);
+      }
+    }
+    if (dead.length) {
+      const stmt = env.DB.prepare("DELETE FROM codes WHERE key = ?");
+      await env.DB.batch(dead.map((k) => stmt.bind(k)));
+    }
+  } catch {
+  }
+}
+async function getLoginFails(env, email) {
+  const row = await env.DB.prepare("SELECT data FROM login_fails WHERE email = ?").bind(email).first();
+  if (!row) return null;
+  try {
+    return JSON.parse(row.data);
+  } catch {
+    return null;
+  }
+}
+async function saveLoginFails(env, email, data) {
+  await env.DB.prepare(
+    "INSERT INTO login_fails (email, data) VALUES (?, ?) ON CONFLICT(email) DO UPDATE SET data = excluded.data"
+  ).bind(email, JSON.stringify(data)).run();
+}
+async function delLoginFails(env, email) {
+  await env.DB.prepare("DELETE FROM login_fails WHERE email = ?").bind(email).run();
+}
+async function getMeta(env, key) {
+  const row = await env.DB.prepare("SELECT value FROM meta WHERE key = ?").bind(key).first();
+  return row ? row.value : null;
+}
+async function setMeta(env, key, value) {
+  await env.DB.prepare(
+    "INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value"
+  ).bind(key, value).run();
+}
+let _migratedCheckedThisIsolate = false;
+async function isMigrated(env) {
+  const flag = await getMeta(env, "legacyMigrated");
+  return flag === "1";
+}
+async function migrateLegacyDb(env) {
+  if (_migratedCheckedThisIsolate) return;
+  if (await isMigrated(env)) {
+    _migratedCheckedThisIsolate = true;
+    return;
+  }
+  _migratedCheckedThisIsolate = true;
+  try {
+    const row = await env.DB.prepare("SELECT data FROM db WHERE id = 1").first();
+    if (!row) return;
+    let db;
+    try {
+      db = JSON.parse(row.data);
+    } catch {
+      return;
+    }
+    let dirty = false;
+    if (Array.isArray(db.users) && db.users.length) {
+      const stmt = env.DB.prepare(
+        "INSERT INTO users (id, email, data, created_at) VALUES (?, ?, ?, ?) ON CONFLICT(id) DO NOTHING"
+      );
+      const tasks = db.users.map((u) => stmt.bind(u.id, u.email, JSON.stringify(u), u.createdAt || (/* @__PURE__ */ new Date()).toISOString()));
+      for (let i = 0; i < tasks.length; i += 50) {
+        await env.DB.batch(tasks.slice(i, i + 50));
+      }
+      db.users = [];
+      dirty = true;
+      console.log(`[migrate] users: ${tasks.length} \u884C\u8FC1\u79FB\u5B8C\u6210`);
+    }
+    if (db.codes && typeof db.codes === "object" && Object.keys(db.codes).length) {
+      const stmt = env.DB.prepare(
+        "INSERT INTO codes (key, data) VALUES (?, ?) ON CONFLICT(key) DO NOTHING"
+      );
+      const entries = Object.entries(db.codes);
+      const tasks = entries.map(([k, v]) => stmt.bind(k, JSON.stringify(v)));
+      for (let i = 0; i < tasks.length; i += 50) {
+        await env.DB.batch(tasks.slice(i, i + 50));
+      }
+      db.codes = {};
+      dirty = true;
+      console.log(`[migrate] codes: ${entries.length} \u884C\u8FC1\u79FB\u5B8C\u6210`);
+    }
+    if (db.loginFails && typeof db.loginFails === "object" && Object.keys(db.loginFails).length) {
+      const stmt = env.DB.prepare(
+        "INSERT INTO login_fails (email, data) VALUES (?, ?) ON CONFLICT(email) DO NOTHING"
+      );
+      const entries = Object.entries(db.loginFails);
+      const tasks = entries.map(([k, v]) => stmt.bind(k, JSON.stringify(v)));
+      for (let i = 0; i < tasks.length; i += 50) {
+        await env.DB.batch(tasks.slice(i, i + 50));
+      }
+      db.loginFails = {};
+      dirty = true;
+      console.log(`[migrate] login_fails: ${entries.length} \u884C\u8FC1\u79FB\u5B8C\u6210`);
+    }
+    if (db.meta && typeof db.meta === "object" && Object.keys(db.meta).length) {
+      const stmt = env.DB.prepare(
+        "INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO NOTHING"
+      );
+      const entries = Object.entries(db.meta);
+      const tasks = entries.map(([k, v]) => stmt.bind(k, typeof v === "string" ? v : JSON.stringify(v)));
+      for (let i = 0; i < tasks.length; i += 50) {
+        await env.DB.batch(tasks.slice(i, i + 50));
+      }
+      db.meta = {};
+      dirty = true;
+      console.log(`[migrate] meta: ${entries.length} \u884C\u8FC1\u79FB\u5B8C\u6210`);
+    }
+    if (dirty) {
+      delete db.users;
+      delete db.codes;
+      delete db.loginFails;
+      delete db.meta;
+      await writeDb(env, db);
+      console.log("[migrate] db \u8868\u7626\u8EAB\u5B8C\u6210");
+    }
+    await setMeta(env, "legacyMigrated", "1");
+    console.log("[migrate] \u6301\u4E45\u5316\u6807\u8BB0 legacyMigrated=1 \u5DF2\u5199\u5165");
+  } catch (e) {
+    _migratedCheckedThisIsolate = false;
+    console.error("[migrate] \u5931\u8D25:", e && e.message);
+  }
+}
+function listPois(db, { includeDeleted = false } = {}) {
+  const deletedSet = new Set(db.deleted);
+  const builtin = seed.pois.filter((p) => includeDeleted || !deletedSet.has(p.id)).map((p) => {
+    const ov = db.overrides[p.id];
+    const merged = ov ? { ...p, ...stripMeta(ov) } : p;
+    return { ...merged, builtin: true, deleted: deletedSet.has(p.id), edited: !!ov };
+  });
+  const custom = db.custom.map((p) => ({ ...p, builtin: false, deleted: false, edited: false }));
+  return [...builtin, ...custom];
+}
+function stripMeta(ov) {
+  const { updatedAt, ...rest } = ov;
+  return rest;
+}
+function validatePoiInput(body, { partial = false } = {}) {
+  const errors = [];
+  const out = {};
+  if (!partial || body.name !== void 0) {
+    if (typeof body.name !== "string" || !body.name.trim() || body.name.trim().length > 30) {
+      errors.push("\u540D\u79F0\u5FC5\u586B\u4E14\u4E0D\u8D85\u8FC7 30 \u5B57");
+    } else out.name = body.name.trim();
+  }
+  if (body.category !== void 0) {
+    if (typeof body.category !== "string" || !/^[a-z0-9_]{1,20}$/.test(body.category)) {
+      errors.push("\u5206\u7C7B\u4E0D\u5408\u6CD5");
+    } else out.category = body.category;
+  } else if (!partial) {
+    errors.push("\u7F3A\u5C11\u5206\u7C7B");
+  }
+  for (const k of ["x", "y"]) {
+    if (body[k] !== void 0) {
+      const v = Number(body[k]);
+      const max = k === "x" ? MAP_W : MAP_H;
+      if (!Number.isFinite(v) || v < 0 || v > max) {
+        errors.push(`${k} \u5750\u6807\u9700\u5728 0~${max} \u4E4B\u95F4`);
+      } else out[k] = +v.toFixed(1);
+    } else if (!partial) {
+      errors.push(`\u7F3A\u5C11\u5750\u6807 ${k}`);
+    }
+  }
+  for (const k of ["desc", "hours", "phone", "floors"]) {
+    if (body[k] !== void 0) {
+      if (typeof body[k] !== "string" || body[k].length > 200) {
+        errors.push(`${k} \u8D85\u957F\u6216\u4E0D\u5408\u6CD5`);
+      } else out[k] = body[k].trim();
+    }
+  }
+  return { errors, data: out };
+}
+async function getSecret(env) {
+  let secret = await getMeta(env, "secret");
+  if (!secret) {
+    secret = randomHex(32);
+    await setMeta(env, "secret", secret);
+  }
+  return secret;
+}
+async function authUser(env, request) {
+  const h = request.headers.get("authorization") || "";
+  if (!h.startsWith("Bearer ")) return null;
+  const uid = await verifyToken(h.slice(7), await getSecret(env));
+  if (!uid) return null;
+  return await findUserById(env, uid);
+}
+function publicProfile(u) {
+  return {
+    id: u.id,
+    email: u.email,
+    nickname: u.nickname,
+    avatar: u.avatar || null,
+    school: u.school || "",
+    grade: u.grade || "",
+    college: u.college || "",
+    major: u.major || "",
+    studentId: u.studentId || "",
+    createdAt: u.createdAt
+  };
+}
+async function checkCode(env, email, type, input, consume) {
+  const key = type + ":" + String(email).toLowerCase();
+  const rec = await getCode(env, key);
+  if (!rec) return "\u8BF7\u5148\u83B7\u53D6\u9A8C\u8BC1\u7801";
+  if (rec.expires < Date.now()) {
+    await delCode(env, key);
+    return "\u9A8C\u8BC1\u7801\u5DF2\u8FC7\u671F\uFF0C\u8BF7\u91CD\u65B0\u53D1\u9001";
+  }
+  if (rec.attempts >= 5) {
+    await delCode(env, key);
+    return "\u9519\u8BEF\u6B21\u6570\u8FC7\u591A\uFF0C\u8BF7\u91CD\u65B0\u53D1\u9001\u9A8C\u8BC1\u7801";
+  }
+  rec.attempts++;
+  if (rec.code !== String(input || "").trim()) {
+    await saveCode(env, key, rec);
+    return "\u9A8C\u8BC1\u7801\u4E0D\u6B63\u786E";
+  }
+  if (consume) await delCode(env, key);
+  else {
+    rec.verified = true;
+    await saveCode(env, key, rec);
+  }
+  return null;
+}
+function json(data, status = 200, extraHeaders = {}) {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "Content-Type": "application/json; charset=utf-8", ...CORS, ...extraHeaders }
+  });
+}
+const CORS = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type, Authorization",
+  "Access-Control-Max-Age": "86400"
+};
+const routes = [];
+function route(method, pattern, handler) {
+  const names = [];
+  const rx = new RegExp("^" + pattern.replace(/:[a-zA-Z]+/g, (m) => {
+    names.push(m.slice(1));
+    return "([^/]+)";
+  }) + "$");
+  routes.push({ method, rx, names, handler });
+}
+route("GET", "/api/health", async (req, env) => {
+  return json({ ok: true, service: "wenxuan-campus-map", time: (/* @__PURE__ */ new Date()).toISOString() });
+});
+route("GET", "/api/pois", async (req, env) => {
+  const db = await readDb(env);
+  const url = new URL(req.url);
+  const includeDeleted = url.searchParams.get("includeDeleted") === "1";
+  const pois = listPois(db, { includeDeleted });
+  const visible = listPois(db);
+  return json({ pois, total: visible.length }, 200, { "Cache-Control": "public, max-age=10" });
+});
+route("GET", "/api/pois/:id", async (req, env, p) => {
+  const db = await readDb(env);
+  const poi = listPois(db, { includeDeleted: true }).find((x) => x.id === p.id);
+  if (!poi) return json({ error: "\u5730\u70B9\u4E0D\u5B58\u5728" }, 404);
+  return json(poi, 200, { "Cache-Control": "public, max-age=30" });
+});
+route("POST", "/api/pois", async (req, env) => {
+  const db = await readDb(env);
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55\u540E\u518D\u53D1\u5E03\u5730\u70B9", code: "AUTH_REQUIRED" }, 401);
+  const body = await req.json().catch(() => ({}));
+  const { errors, data } = validatePoiInput(body);
+  if (errors.length) return json({ error: errors.join("\uFF1B") }, 400);
+  let id = "b_user_" + Date.now().toString(36);
+  if (typeof body.id === "string" && /^b_user_[a-z0-9]{4,20}$/.test(body.id)) {
+    const exists = db.custom.some((x) => x.id === body.id) || seed.pois.some((x) => x.id === body.id);
+    if (exists) {
+      const dup = db.custom.find((x) => x.id === body.id);
+      if (dup) return json({ ...dup, builtin: false, deleted: false, edited: false });
+      return json({ error: "id \u5DF2\u88AB\u5360\u7528" }, 409);
+    }
+    id = body.id;
+  }
+  const poi = {
+    id,
+    name: data.name,
+    category: data.category,
+    x: data.x,
+    y: data.y,
+    desc: data.desc || "\u540C\u5B66\u5171\u5EFA\u7684\u5730\u70B9\u3002",
+    hours: data.hours || "\u2014",
+    phone: data.phone || "\u2014",
+    floors: data.floors || "\u2014",
+    authorId: user.id,
+    authorName: user.nickname,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  db.custom.push(poi);
+  await writeDb(env, db);
+  return json({ ...poi, builtin: false, deleted: false, edited: false }, 201);
+});
+route("PUT", "/api/pois/:id", async (req, env, p) => {
+  const db = await readDb(env);
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55\u540E\u518D\u7F16\u8F91\u5730\u70B9", code: "AUTH_REQUIRED" }, 401);
+  const body = await req.json().catch(() => ({}));
+  const { errors, data } = validatePoiInput(body, { partial: true });
+  if (errors.length) return json({ error: errors.join("\uFF1B") }, 400);
+  if (Object.keys(data).length === 0) return json({ error: "\u6CA1\u6709\u53EF\u66F4\u65B0\u7684\u5B57\u6BB5" }, 400);
+  const custom = db.custom.find((x) => x.id === p.id);
+  if (custom) {
+    if (custom.authorId && custom.authorId !== user.id) {
+      return json({ error: "\u53EA\u80FD\u7F16\u8F91\u81EA\u5DF1\u53D1\u5E03\u7684\u5730\u70B9" }, 403);
+    }
+    Object.assign(custom, data);
+    await writeDb(env, db);
+    return json({ ...custom, builtin: false, deleted: false, edited: false });
+  }
+  const base = seed.pois.find((x) => x.id === p.id);
+  if (!base) return json({ error: "\u5730\u70B9\u4E0D\u5B58\u5728" }, 404);
+  if (db.deleted.includes(p.id)) return json({ error: "\u5730\u70B9\u5DF2\u88AB\u5220\u9664\uFF0C\u8BF7\u5148\u6062\u590D" }, 409);
+  db.overrides[p.id] = { ...db.overrides[p.id] || {}, ...data, updatedAt: (/* @__PURE__ */ new Date()).toISOString() };
+  await writeDb(env, db);
+  return json({ ...base, ...data, builtin: true, deleted: false, edited: true });
+});
+route("DELETE", "/api/pois/:id", async (req, env, p) => {
+  const db = await readDb(env);
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55\u540E\u518D\u5220\u9664\u5730\u70B9", code: "AUTH_REQUIRED" }, 401);
+  const ci = db.custom.findIndex((x) => x.id === p.id);
+  if (ci >= 0) {
+    if (db.custom[ci].authorId && db.custom[ci].authorId !== user.id) {
+      return json({ error: "\u53EA\u80FD\u5220\u9664\u81EA\u5DF1\u53D1\u5E03\u7684\u5730\u70B9" }, 403);
+    }
+    const removed = db.custom.splice(ci, 1)[0];
+    await writeDb(env, db);
+    return json({ ok: true, removed: removed.id, hard: true });
+  }
+  if (!seed.pois.some((x) => x.id === p.id)) return json({ error: "\u5730\u70B9\u4E0D\u5B58\u5728" }, 404);
+  if (!db.deleted.includes(p.id)) {
+    db.deleted.push(p.id);
+    await writeDb(env, db);
+  }
+  return json({ ok: true, removed: p.id, hard: false });
+});
+route("POST", "/api/pois/:id/restore", async (req, env, p) => {
+  const db = await readDb(env);
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55\u540E\u518D\u6062\u590D\u5730\u70B9", code: "AUTH_REQUIRED" }, 401);
+  const base = seed.pois.find((x) => x.id === p.id);
+  if (!base) return json({ error: "\u4EC5\u5185\u7F6E\u5730\u70B9\u652F\u6301\u6062\u590D" }, 404);
+  db.deleted = db.deleted.filter((d) => d !== p.id);
+  delete db.overrides[p.id];
+  await writeDb(env, db);
+  return json({ ...base, builtin: true, deleted: false, edited: false });
+});
+route("GET", "/api/stats", async (req, env) => {
+  const db = await readDb(env);
+  const usersTotal = await countUsers(env);
+  return json({
+    builtinTotal: seed.pois.length,
+    customTotal: db.custom.length,
+    editedTotal: Object.keys(db.overrides).length,
+    deletedTotal: db.deleted.length,
+    visibleTotal: listPois(db).length,
+    usersTotal,
+    dbCreatedAt: db.createdAt
+  }, 200, { "Cache-Control": "public, max-age=30" });
+});
+route("POST", "/api/auth/send-code", async (req, env) => {
+  const body = await req.json().catch(() => ({}));
+  const { email, type } = body;
+  if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+    return json({ error: "\u90AE\u7BB1\u683C\u5F0F\u4E0D\u6B63\u786E" }, 400);
+  }
+  if (!["register", "reset"].includes(type)) {
+    return json({ error: "\u9A8C\u8BC1\u7801\u7C7B\u578B\u4E0D\u5408\u6CD5" }, 400);
+  }
+  const em = email.toLowerCase();
+  const exists = !!await findUserByEmail(env, em);
+  if (type === "register" && exists) {
+    return json({ error: "\u8BE5\u90AE\u7BB1\u5DF2\u6CE8\u518C\uFF0C\u8BF7\u76F4\u63A5\u767B\u5F55", code: "EMAIL_TAKEN" }, 409);
+  }
+  if (type === "reset" && !exists) {
+    return json({ error: "\u8BE5\u90AE\u7BB1\u5C1A\u672A\u6CE8\u518C" }, 404);
+  }
+  const key = type + ":" + em;
+  const prev = await getCode(env, key);
+  if (prev && Date.now() - prev.lastSent < CODE_COOLDOWN) {
+    const wait = Math.ceil((CODE_COOLDOWN - (Date.now() - prev.lastSent)) / 1e3);
+    return json({ error: `\u53D1\u9001\u592A\u9891\u7E41\uFF0C\u8BF7 ${wait} \u79D2\u540E\u518D\u8BD5`, retryAfter: wait }, 429);
+  }
+  const n = new Uint32Array(1);
+  crypto.getRandomValues(n);
+  const code = String(n[0] % 1e6).padStart(6, "0");
+  await saveCode(env, key, { code, expires: Date.now() + CODE_TTL, attempts: 0, lastSent: Date.now(), verified: false });
+  env.sweepPending = true;
+  console.log(`[auth] \u6F14\u793A\u9A8C\u8BC1\u7801 ${em} (${type}): ${code}`);
+  return json({ ok: true, demo: true, devCode: code, expiresIn: CODE_TTL / 1e3 });
+});
+route("POST", "/api/auth/verify-code", async (req, env) => {
+  const body = await req.json().catch(() => ({}));
+  const { email, type, code } = body;
+  if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+    return json({ error: "\u90AE\u7BB1\u683C\u5F0F\u4E0D\u6B63\u786E" }, 400);
+  }
+  if (!["register", "reset"].includes(type)) {
+    return json({ error: "\u9A8C\u8BC1\u7801\u7C7B\u578B\u4E0D\u5408\u6CD5" }, 400);
+  }
+  const err = await checkCode(env, email, type, code, false);
+  if (err) return json({ error: err }, 400);
+  return json({ ok: true });
+});
+route("POST", "/api/auth/register", async (req, env) => {
+  const body = await req.json().catch(() => ({}));
+  const { email, password, nickname, school, studentId, avatar, grade, college, major } = body;
+  if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+    return json({ error: "\u90AE\u7BB1\u683C\u5F0F\u4E0D\u6B63\u786E" }, 400);
+  }
+  if (typeof password !== "string" || password.length < 8 || password.length > 72) {
+    return json({ error: "\u5BC6\u7801\u9700 8~72 \u4F4D" }, 400);
+  }
+  const nick = typeof nickname === "string" ? nickname.trim() : "";
+  if (nick.length < 2 || nick.length > 12) {
+    return json({ error: "\u6635\u79F0\u9700 2~12 \u4E2A\u5B57\u7B26" }, 400);
+  }
+  if (scan(nick).hit) {
+    return json({ error: "\u6635\u79F0\u5305\u542B\u8FDD\u89C4\u5185\u5BB9\uFF0C\u8BF7\u66F4\u6362" }, 400);
+  }
+  if (!validStudentInfo(
+    typeof grade === "string" ? grade.trim() : "",
+    typeof college === "string" ? college.trim() : "",
+    typeof major === "string" ? major.trim() : ""
+  )) {
+    return json({ error: "\u8BF7\u9009\u62E9\u6B63\u786E\u7684\u5E74\u7EA7\u3001\u5B66\u9662\u4E0E\u4E13\u4E1A" }, 400);
+  }
+  if (avatar !== void 0 && avatar !== null && !(typeof avatar === "string" && (/^preset:[0-7]$/.test(avatar) || /^data:image\/(png|jpeg|webp);base64,/.test(avatar) && avatar.length < 15e4))) {
+    return json({ error: "\u5934\u50CF\u683C\u5F0F\u4E0D\u652F\u6301" }, 400);
+  }
+  const em = email.toLowerCase();
+  if (await findUserByEmail(env, em)) {
+    return json({ error: "\u8BE5\u90AE\u7BB1\u5DF2\u6CE8\u518C\uFF0C\u8BF7\u76F4\u63A5\u767B\u5F55", code: "EMAIL_TAKEN" }, 409);
+  }
+  const key = "register:" + em;
+  const rec = await getCode(env, key);
+  if (!rec || !rec.verified || rec.expires < Date.now()) {
+    return json({ error: "\u90AE\u7BB1\u9A8C\u8BC1\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u9A8C\u8BC1" }, 400);
+  }
+  await delCode(env, key);
+  const salt = randomHex(16);
+  const user = {
+    id: "u_" + randomHex(6),
+    email: em,
+    salt,
+    passHash: await hashPassword(password, salt),
+    nickname: nick,
+    avatar: avatar || null,
+    school: WENXUAN_SCHOOL,
+    // 学校固定，不可改
+    grade: grade.trim(),
+    // 年级（入学年份）
+    college: college.trim(),
+    // 学院
+    major: major.trim(),
+    // 专业
+    studentId: typeof studentId === "string" ? studentId.trim().slice(0, 20) : "",
+    createdAt: (/* @__PURE__ */ new Date()).toISOString()
+  };
+  await saveUser(env, user);
+  const secret = await getSecret(env);
+  return json({ token: await signToken(user.id, secret), user: publicProfile(user) }, 201);
+});
+route("POST", "/api/auth/login", async (req, env) => {
+  const body = await req.json().catch(() => ({}));
+  const { email, password } = body;
+  if (typeof email !== "string" || !EMAIL_RE.test(email) || typeof password !== "string" || !password) {
+    return json({ error: "\u8BF7\u8F93\u5165\u90AE\u7BB1\u548C\u5BC6\u7801" }, 400);
+  }
+  const em = email.toLowerCase();
+  const fail = await getLoginFails(env, em);
+  if (fail && fail.lockUntil && fail.lockUntil > Date.now()) {
+    const mins = Math.ceil((fail.lockUntil - Date.now()) / 6e4);
+    return json({ error: `\u5931\u8D25\u6B21\u6570\u8FC7\u591A\uFF0C\u5DF2\u9501\u5B9A\uFF0C\u8BF7 ${mins} \u5206\u949F\u540E\u518D\u8BD5` }, 429);
+  }
+  const user = await findUserByEmail(env, em);
+  let ok = false;
+  if (user) {
+    const a = await hashPassword(password, user.salt);
+    ok = timingSafeEqual(a, user.passHash);
+  }
+  if (!ok) {
+    const rec = fail || { count: 0, lockUntil: 0 };
+    rec.count++;
+    if (rec.count >= 5) {
+      rec.count = 0;
+      rec.lockUntil = Date.now() + 10 * 60 * 1e3;
+    }
+    await saveLoginFails(env, em, rec);
+    return json({ error: "\u90AE\u7BB1\u6216\u5BC6\u7801\u4E0D\u6B63\u786E" }, 401);
+  }
+  await delLoginFails(env, em);
+  const secret = await getSecret(env);
+  return json({ token: await signToken(user.id, secret), user: publicProfile(user) });
+});
+route("POST", "/api/auth/reset", async (req, env) => {
+  const body = await req.json().catch(() => ({}));
+  const { email, code, password } = body;
+  if (typeof email !== "string" || !EMAIL_RE.test(email)) {
+    return json({ error: "\u90AE\u7BB1\u683C\u5F0F\u4E0D\u6B63\u786E" }, 400);
+  }
+  if (typeof password !== "string" || password.length < 8 || password.length > 72) {
+    return json({ error: "\u65B0\u5BC6\u7801\u9700 8~72 \u4F4D" }, 400);
+  }
+  const em = email.toLowerCase();
+  const user = await findUserByEmail(env, em);
+  if (!user) return json({ error: "\u8BE5\u90AE\u7BB1\u5C1A\u672A\u6CE8\u518C" }, 404);
+  const err = await checkCode(env, em, "reset", code, true);
+  if (err) return json({ error: err }, 400);
+  user.salt = randomHex(16);
+  user.passHash = await hashPassword(password, user.salt);
+  await saveUser(env, user);
+  const secret = await getSecret(env);
+  return json({ token: await signToken(user.id, secret), user: publicProfile(user) });
+});
+route("GET", "/api/auth/me", async (req, env) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u767B\u5F55\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  return json({ user: publicProfile(user) });
+});
+route("PUT", "/api/auth/me", async (req, env) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u767B\u5F55\u5DF2\u5931\u6548\uFF0C\u8BF7\u91CD\u65B0\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const body = await req.json().catch(() => ({}));
+  const { nickname, avatar, school, studentId, grade, college, major } = body;
+  if (nickname !== void 0) {
+    const nick = String(nickname).trim();
+    if (nick.length < 2 || nick.length > 12) return json({ error: "\u6635\u79F0\u9700 2~12 \u4E2A\u5B57\u7B26" }, 400);
+    if (scan(nick).hit) return json({ error: "\u6635\u79F0\u5305\u542B\u8FDD\u89C4\u5185\u5BB9\uFF0C\u8BF7\u66F4\u6362" }, 400);
+    user.nickname = nick;
+  }
+  if (avatar !== void 0) {
+    if (avatar !== null && !(typeof avatar === "string" && (/^preset:[0-7]$/.test(avatar) || /^data:image\/(png|jpeg|webp);base64,/.test(avatar) && avatar.length < 15e4))) {
+      return json({ error: "\u5934\u50CF\u683C\u5F0F\u4E0D\u652F\u6301" }, 400);
+    }
+    user.avatar = avatar;
+  }
+  if (grade !== void 0 || college !== void 0 || major !== void 0) {
+    const g = grade !== void 0 ? String(grade).trim() : user.grade || "";
+    const c = college !== void 0 ? String(college).trim() : user.college || "";
+    const m = major !== void 0 ? String(major).trim() : user.major || "";
+    if (!validStudentInfo(g, c, m)) return json({ error: "\u8BF7\u9009\u62E9\u6B63\u786E\u7684\u5E74\u7EA7\u3001\u5B66\u9662\u4E0E\u4E13\u4E1A" }, 400);
+    user.grade = g;
+    user.college = c;
+    user.major = m;
+  }
+  if (school !== void 0) user.school = WENXUAN_SCHOOL;
+  if (studentId !== void 0) user.studentId = String(studentId).trim().slice(0, 20);
+  await saveUser(env, user);
+  return json({ user: publicProfile(user) });
+});
+const LF_TTL = 30 * 24 * 3600 * 1e3;
+const LF_GRACE = 7 * 24 * 3600 * 1e3;
+const LF_CATS = ["card", "key", "elec", "book", "cloth", "other"];
+const LF_MAX_ATTEMPTS = 5;
+async function lfReadAll(env) {
+  const { results } = await env.DB.prepare("SELECT id, data, created_at FROM lf_posts ORDER BY created_at DESC LIMIT 300").all();
+  const now = Date.now();
+  const posts = [];
+  const deadIds = [];
+  for (const row of results) {
+    try {
+      const p = JSON.parse(row.data);
+      if (p.expiresAt + LF_GRACE < now) {
+        deadIds.push(row.id);
+        continue;
+      }
+      posts.push(p);
+    } catch {
+      deadIds.push(row.id);
+    }
+  }
+  if (deadIds.length) {
+    const stmt = env.DB.prepare("DELETE FROM lf_posts WHERE id = ?");
+    await env.DB.batch(deadIds.map((id) => stmt.bind(id)));
+  }
+  return posts;
+}
+async function lfWrite(env, post) {
+  await env.DB.prepare(
+    "INSERT INTO lf_posts (id, data, created_at) VALUES (?, ?, ?) ON CONFLICT(id) DO UPDATE SET data = excluded.data"
+  ).bind(post.id, JSON.stringify(post), post.createdAt).run();
+}
+function lfPublic(p, { isOwner = false, viewerId = null } = {}) {
+  const out = {
+    id: p.id,
+    type: p.type,
+    title: p.title,
+    category: p.category,
+    desc: p.desc,
+    timeText: p.timeText,
+    x: p.x,
+    y: p.y,
+    locName: p.locName,
+    status: p.status,
+    ownerId: p.ownerId,
+    ownerName: p.ownerName,
+    proofQ: p.proofQ,
+    createdAt: p.createdAt,
+    expiresAt: p.expiresAt,
+    resolvedAt: p.resolvedAt || null,
+    mine: viewerId ? p.ownerId === viewerId : false
+  };
+  if (isOwner) out.claims = p.claims || [];
+  if (p.status === "done" && viewerId) {
+    if (p.ownerId === viewerId) out.contact = p.contact || null;
+    else if ((p.claims || []).some((c) => c.uid === viewerId)) out.contact = p.ownerContact || null;
+  }
+  return out;
+}
+function validateLfInput(body) {
+  const errors = [];
+  const out = {};
+  if (!["lost", "found"].includes(body.type)) errors.push("\u7C7B\u578B\u5FC5\u987B\u662F lost \u6216 found");
+  else out.type = body.type;
+  const t = typeof body.title === "string" ? body.title.trim() : "";
+  if (!t || t.length > 30) errors.push("\u6807\u9898\u5FC5\u586B\u4E14\u4E0D\u8D85\u8FC7 30 \u5B57");
+  else out.title = t;
+  if (!LF_CATS.includes(body.category)) errors.push("\u7269\u54C1\u5206\u7C7B\u4E0D\u5408\u6CD5");
+  else out.category = body.category;
+  const d = typeof body.desc === "string" ? body.desc.trim() : "";
+  if (d.length > 200) errors.push("\u63CF\u8FF0\u4E0D\u8D85\u8FC7 200 \u5B57");
+  else out.desc = d || "\uFF08\u672A\u586B\u5199\u63CF\u8FF0\uFF09";
+  const tt = typeof body.timeText === "string" ? body.timeText.trim() : "";
+  if (tt.length > 30) errors.push("\u65F6\u95F4\u63CF\u8FF0\u4E0D\u8D85\u8FC7 30 \u5B57");
+  else out.timeText = tt || "\u65F6\u95F4\u4E0D\u8BE6";
+  for (const k of ["x", "y"]) {
+    const v = Number(body[k]);
+    const max = k === "x" ? MAP_W : MAP_H;
+    if (!Number.isFinite(v) || v < 0 || v > max) errors.push(`${k} \u5750\u6807\u9700\u5728 0~${max} \u4E4B\u95F4`);
+    else out[k] = +v.toFixed(1);
+  }
+  const ln = typeof body.locName === "string" ? body.locName.trim() : "";
+  if (ln.length > 30) errors.push("\u5730\u70B9\u540D\u79F0\u4E0D\u8D85\u8FC7 30 \u5B57");
+  else out.locName = ln || "\u6821\u5185";
+  const q = typeof body.proofQ === "string" ? body.proofQ.trim() : "";
+  if (!q || q.length > 60) errors.push("\u9A8C\u8BC1\u95EE\u9898\u5FC5\u586B\u4E14\u4E0D\u8D85\u8FC7 60 \u5B57");
+  else out.proofQ = q;
+  const a = typeof body.proofA === "string" ? body.proofA.trim() : "";
+  if (a.length < 1 || a.length > 40) errors.push("\u9A8C\u8BC1\u7B54\u6848\u9700 1~40 \u5B57");
+  else out.proofA = a;
+  return { errors, data: out };
+}
+function lfNorm(s) {
+  return String(s || "").toLowerCase().replace(/\s+/g, "");
+}
+route("GET", "/api/lf", async (req, env) => {
+  const user = await authUser(env, req);
+  const url = new URL(req.url);
+  const mineOnly = url.searchParams.get("mine") === "1";
+  const now = Date.now();
+  let posts = await lfReadAll(env);
+  posts = posts.filter((p) => !(p.status === "open" && p.expiresAt < now));
+  if (mineOnly) {
+    if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+    posts = posts.filter((p) => p.ownerId === user.id);
+  }
+  return json({
+    posts: posts.map((p) => lfPublic(p, {
+      isOwner: !!user && p.ownerId === user.id,
+      viewerId: user ? user.id : null
+    })),
+    total: posts.length
+  });
+});
+route("POST", "/api/lf", async (req, env) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55\u540E\u518D\u53D1\u5E03", code: "AUTH_REQUIRED" }, 401);
+  const body = await req.json().catch(() => ({}));
+  const { errors, data } = validateLfInput(body);
+  if (errors.length) return json({ error: errors.join("\uFF1B") }, 400);
+  const now = Date.now();
+  const post = {
+    id: "lf_" + randomHex(5),
+    ...data,
+    status: "open",
+    ownerId: user.id,
+    ownerName: user.nickname,
+    ownerContact: user.email,
+    // 仅在认领确认后对认领人可见
+    contact: null,
+    // 认领人联系方式，确认后填入
+    claims: [],
+    attempts: {},
+    createdAt: now,
+    expiresAt: now + LF_TTL,
+    resolvedAt: null
+  };
+  await lfWrite(env, post);
+  return json(lfPublic(post, { isOwner: true, viewerId: user.id }), 201);
+});
+route("POST", "/api/lf/:id/claim", async (req, env, p) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55\u540E\u518D\u8BA4\u9886", code: "AUTH_REQUIRED" }, 401);
+  const posts = await lfReadAll(env);
+  const post = posts.find((x) => x.id === p.id);
+  if (!post) return json({ error: "\u5E16\u5B50\u4E0D\u5B58\u5728\u6216\u5DF2\u8FC7\u671F" }, 404);
+  if (post.ownerId === user.id) return json({ error: "\u4E0D\u80FD\u8BA4\u9886\u81EA\u5DF1\u53D1\u5E03\u7684\u5E16\u5B50" }, 400);
+  if (post.status !== "open") return json({ error: "\u8BE5\u5E16\u5B50\u5F53\u524D\u4E0D\u53EF\u8BA4\u9886" }, 409);
+  if ((post.claims || []).some((c) => c.uid === user.id)) return json({ error: "\u4F60\u5DF2\u63D0\u4EA4\u8FC7\u8BA4\u9886\u7533\u8BF7" }, 409);
+  post.attempts = post.attempts || {};
+  const tried = post.attempts[user.id] || 0;
+  if (tried >= LF_MAX_ATTEMPTS) return json({ error: "\u5C1D\u8BD5\u6B21\u6570\u8FC7\u591A\uFF0C\u8BF7\u8054\u7CFB\u53D1\u5E03\u8005\u6216\u653E\u5F03" }, 429);
+  const body = await req.json().catch(() => ({}));
+  const answer = lfNorm(body.answer);
+  if (!answer) return json({ error: "\u8BF7\u56DE\u7B54\u9A8C\u8BC1\u95EE\u9898" }, 400);
+  post.attempts[user.id] = tried + 1;
+  if (answer !== lfNorm(post.proofA)) {
+    const left = LF_MAX_ATTEMPTS - post.attempts[user.id];
+    await lfWrite(env, post);
+    return json({ error: `\u9A8C\u8BC1\u7B54\u6848\u4E0D\u6B63\u786E\uFF08\u8FD8\u53EF\u5C1D\u8BD5 ${left} \u6B21\uFF09` }, 403);
+  }
+  post.claims = post.claims || [];
+  post.claims.push({ uid: user.id, nickname: user.nickname, at: Date.now() });
+  post.status = "pending";
+  post.contact = user.email;
+  await lfWrite(env, post);
+  return json({ ok: true, message: "\u9A8C\u8BC1\u901A\u8FC7\uFF01\u53D1\u5E03\u8005\u786E\u8BA4\u540E\u5373\u53EF\u4EA4\u6362\u8054\u7CFB\u65B9\u5F0F" });
+});
+route("POST", "/api/lf/:id/confirm", async (req, env, p) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const posts = await lfReadAll(env);
+  const post = posts.find((x) => x.id === p.id);
+  if (!post) return json({ error: "\u5E16\u5B50\u4E0D\u5B58\u5728\u6216\u5DF2\u8FC7\u671F" }, 404);
+  if (post.ownerId !== user.id) return json({ error: "\u53EA\u6709\u53D1\u5E03\u8005\u53EF\u4EE5\u786E\u8BA4\u8BA4\u9886" }, 403);
+  if (post.status === "done") return json({ error: "\u8BE5\u5E16\u5B50\u5DF2\u5B8C\u6210\u8BA4\u9886" }, 409);
+  const body = await req.json().catch(() => ({}));
+  const claim = (post.claims || []).find((c) => c.uid === body.uid);
+  if (!claim) return json({ error: "\u672A\u627E\u5230\u8BE5\u8BA4\u9886\u7533\u8BF7" }, 404);
+  post.status = "done";
+  post.resolvedAt = Date.now();
+  post.claims = [claim];
+  await lfWrite(env, post);
+  return json({ ok: true, message: "\u5DF2\u786E\u8BA4\u8BA4\u9886\uFF0C\u8054\u7CFB\u65B9\u5F0F\u5DF2\u4E92\u76F8\u4EA4\u6362" });
+});
+route("POST", "/api/lf/:id/reject", async (req, env, p) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const posts = await lfReadAll(env);
+  const post = posts.find((x) => x.id === p.id);
+  if (!post) return json({ error: "\u5E16\u5B50\u4E0D\u5B58\u5728\u6216\u5DF2\u8FC7\u671F" }, 404);
+  if (post.ownerId !== user.id) return json({ error: "\u53EA\u6709\u53D1\u5E03\u8005\u53EF\u4EE5\u62D2\u7EDD\u7533\u8BF7" }, 403);
+  const body = await req.json().catch(() => ({}));
+  post.claims = (post.claims || []).filter((c) => c.uid !== body.uid);
+  if (!post.claims.length && post.status === "pending") post.status = "open";
+  await lfWrite(env, post);
+  return json({ ok: true });
+});
+route("PUT", "/api/lf/:id", async (req, env, p) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const row = await env.DB.prepare("SELECT data FROM lf_posts WHERE id = ?").bind(p.id).first();
+  if (!row) return json({ error: "\u5E16\u5B50\u4E0D\u5B58\u5728" }, 404);
+  const post = JSON.parse(row.data);
+  if (post.ownerId !== user.id) return json({ error: "\u53EA\u80FD\u7F16\u8F91\u81EA\u5DF1\u53D1\u5E03\u7684\u5E16\u5B50" }, 403);
+  if (post.status === "done") return json({ error: "\u5DF2\u5B8C\u6210\u7684\u5E16\u5B50\u4E0D\u53EF\u7F16\u8F91" }, 409);
+  const body = await req.json().catch(() => ({}));
+  const patch = {};
+  if (body.title !== void 0) patch.title = typeof body.title === "string" ? body.title.trim() : "";
+  if (body.desc !== void 0) patch.desc = typeof body.desc === "string" ? body.desc.trim() : "";
+  if (body.timeText !== void 0) patch.timeText = typeof body.timeText === "string" ? body.timeText.trim() : "";
+  if (body.category !== void 0) patch.category = body.category;
+  if (body.proofQ !== void 0) patch.proofQ = typeof body.proofQ === "string" ? body.proofQ.trim() : "";
+  if (body.proofA !== void 0) patch.proofA = typeof body.proofA === "string" ? body.proofA.trim() : "";
+  const merged = { ...post, ...patch };
+  const { errors, data } = validateLfInput(merged);
+  if (errors.length) return json({ error: errors.join("\uFF1B") }, 400);
+  Object.assign(post, data);
+  await lfWrite(env, post);
+  return json(lfPublic(post, { isOwner: true, viewerId: user.id }));
+});
+route("DELETE", "/api/lf/:id", async (req, env, p) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const row = await env.DB.prepare("SELECT data FROM lf_posts WHERE id = ?").bind(p.id).first();
+  if (!row) return json({ error: "\u5E16\u5B50\u4E0D\u5B58\u5728" }, 404);
+  const post = JSON.parse(row.data);
+  if (post.ownerId !== user.id) return json({ error: "\u53EA\u80FD\u64A4\u56DE\u81EA\u5DF1\u53D1\u5E03\u7684\u5E16\u5B50" }, 403);
+  await env.DB.prepare("DELETE FROM lf_posts WHERE id = ?").bind(p.id).run();
+  return json({ ok: true });
+});
+async function udRead(env, uid) {
+  const row = await env.DB.prepare("SELECT data FROM user_data WHERE uid = ?").bind(uid).first();
+  if (row) {
+    try {
+      return JSON.parse(row.data);
+    } catch {
+    }
+  }
+  return { fav: [], custom: [], notes: {} };
+}
+async function udWrite(env, uid, data) {
+  await env.DB.prepare(
+    "INSERT INTO user_data (uid, data, updated_at) VALUES (?, ?, ?) ON CONFLICT(uid) DO UPDATE SET data = excluded.data, updated_at = excluded.updated_at"
+  ).bind(uid, JSON.stringify(data), Date.now()).run();
+}
+route("GET", "/api/userdata", async (req, env) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  return json({ data: await udRead(env, user.id) });
+});
+route("PUT", "/api/userdata", async (req, env) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const body = await req.json().catch(() => ({}));
+  const fav = Array.isArray(body.fav) ? body.fav.filter((x) => typeof x === "string").slice(0, 500) : [];
+  const custom = Array.isArray(body.custom) ? body.custom.slice(0, 500) : [];
+  const notes = body.notes && typeof body.notes === "object" ? body.notes : {};
+  const data = { fav, custom, notes };
+  await udWrite(env, user.id, data);
+  return json({ ok: true, data });
+});
+const CHAT_LIMIT = 200;
+const CHAT_MSG_MAX = 500;
+const LOBBY_TTL = 24 * 36e5;
+function dmRoom(a, b) {
+  return "dm:" + [a, b].sort().join(":");
+}
+function msgPublic(row) {
+  try {
+    const d = JSON.parse(row.data);
+    return {
+      id: row.id,
+      room: row.room,
+      sender: row.sender,
+      senderName: d.senderName || "",
+      text: d.text || "",
+      createdAt: row.created_at
+    };
+  } catch {
+    return null;
+  }
+}
+async function senderProfiles(env, uids) {
+  const map = {};
+  const list = [...new Set(uids)].filter(Boolean);
+  for (let i = 0; i < list.length; i += 50) {
+    const chunk = list.slice(i, i + 50);
+    const ph = chunk.map(() => "?").join(",");
+    const rows = (await env.DB.prepare(
+      `SELECT id, data FROM users WHERE id IN (${ph})`
+    ).bind(...chunk).all()).results;
+    for (const r of rows) {
+      try {
+        const u = JSON.parse(r.data);
+        map[r.id] = { name: u.nickname || "", avatar: u.avatar || null };
+      } catch {
+      }
+    }
+  }
+  return map;
+}
+async function roomEtag(env, room) {
+  const row = await env.DB.prepare(
+    "SELECT created_at FROM messages WHERE room = ? ORDER BY created_at DESC LIMIT 1"
+  ).bind(room).first();
+  if (!row) return "empty";
+  return "m" + row.created_at;
+}
+route("GET", "/api/chat", async (req, env) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const url = new URL(req.url);
+  let room = url.searchParams.get("room") || "lobby";
+  const before = url.searchParams.get("before") || "";
+  const limit = Math.min(parseInt(url.searchParams.get("limit") || "50", 10) || 50, CHAT_LIMIT);
+  if (room.startsWith("dm:")) {
+    const parts = room.split(":");
+    if (parts.length !== 3 || !parts.includes(user.id)) {
+      return json({ error: "\u65E0\u6743\u67E5\u770B\u8BE5\u4F1A\u8BDD" }, 403);
+    }
+  }
+  if (!before) {
+    const inm = (req.headers.get("if-none-match") || "").trim().replace(/^W\//, "").replace(/"/g, "");
+    if (inm) {
+      const tag2 = await roomEtag(env, room);
+      if (inm === tag2) {
+        return new Response(null, {
+          status: 304,
+          headers: { "ETag": '"' + tag2 + '"', ...CORS }
+        });
+      }
+      const rows3 = (await env.DB.prepare(
+        "SELECT id, room, sender, data, created_at FROM messages WHERE room = ? ORDER BY created_at DESC LIMIT ?"
+      ).bind(room, limit).all()).results;
+      const msgs3 = rows3.map(msgPublic).filter(Boolean).reverse();
+      const senders2 = await senderProfiles(env, rows3.map((r) => r.sender));
+      return json({ room, messages: msgs3, senders: senders2 }, 200, {
+        "ETag": '"' + tag2 + '"',
+        "Cache-Control": "no-cache"
+      });
+    }
+    const rows2 = (await env.DB.prepare(
+      "SELECT id, room, sender, data, created_at FROM messages WHERE room = ? ORDER BY created_at DESC LIMIT ?"
+    ).bind(room, limit).all()).results;
+    const tag = rows2.length ? "m" + rows2[0].created_at : "empty";
+    const msgs2 = rows2.map(msgPublic).filter(Boolean).reverse();
+    const senders = await senderProfiles(env, rows2.map((r) => r.sender));
+    return json({ room, messages: msgs2, senders }, 200, {
+      "ETag": '"' + tag + '"',
+      "Cache-Control": "no-cache"
+    });
+  }
+  const rows = (await env.DB.prepare(
+    "SELECT id, room, sender, data, created_at FROM messages WHERE room = ? AND created_at < ? ORDER BY created_at DESC LIMIT ?"
+  ).bind(room, Number(before) || 0, limit).all()).results;
+  const msgs = rows.map(msgPublic).filter(Boolean).reverse();
+  return json({ room, messages: msgs });
+});
+route("POST", "/api/chat", async (req, env) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  if (isBanned(user)) return json({ error: "\u4F60\u5DF2\u88AB\u79FB\u51FA\u804A\u5929\u5E76\u7981\u6B62\u53D1\u8A00\uFF0C\u8BF7\u8054\u7CFB\u7BA1\u7406\u5458\u7533\u8BC9", code: "CHAT_BANNED" }, 403);
+  const body = await req.json().catch(() => ({}));
+  const text = String(body.text || "").trim();
+  if (!text) return json({ error: "\u6D88\u606F\u4E0D\u80FD\u4E3A\u7A7A" }, 400);
+  if (text.length > CHAT_MSG_MAX) return json({ error: "\u6D88\u606F\u8FC7\u957F" }, 400);
+  const guard = checkMessage(null, user, text);
+  if (!guard.ok) {
+    await saveUser(env, user);
+    return json(
+      { error: guard.error, code: guard.code, banned: !!guard.banned, strike: guard.strike },
+      guard.banned ? 403 : 400
+    );
+  }
+  let room = String(body.room || "lobby");
+  if (room.startsWith("dm:")) {
+    const parts = room.split(":");
+    if (parts.length !== 3) return json({ error: "\u4F1A\u8BDD\u683C\u5F0F\u4E0D\u6B63\u786E" }, 400);
+    const [a, b] = [parts[1], parts[2]];
+    if (![a, b].includes(user.id)) return json({ error: "\u65E0\u6743\u5728\u8BE5\u4F1A\u8BDD\u53D1\u8A00" }, 403);
+    const other = a === user.id ? b : a;
+    if (!await findUserById(env, other)) return json({ error: "\u5BF9\u65B9\u7528\u6237\u4E0D\u5B58\u5728" }, 404);
+    if (other === user.id) return json({ error: "\u4E0D\u80FD\u7ED9\u81EA\u5DF1\u53D1\u79C1\u4FE1" }, 400);
+    room = dmRoom(a, b);
+  } else if (room !== "lobby") {
+    return json({ error: "\u4F1A\u8BDD\u7C7B\u578B\u4E0D\u5408\u6CD5" }, 400);
+  }
+  const id = "m_" + randomHex(8);
+  const createdAt = Date.now();
+  const slim = JSON.stringify({ text, senderName: user.nickname });
+  await env.DB.prepare(
+    "INSERT INTO messages (id, room, sender, data, created_at) VALUES (?, ?, ?, ?, ?)"
+  ).bind(id, room, user.id, slim, createdAt).run();
+  return json({ message: msgPublic({ id, room, sender: user.id, data: slim, created_at: createdAt }) }, 201);
+});
+route("GET", "/api/chat/users", async (req, env) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const users = await listUsersBrief(env, user.id, 500);
+  return json({ users }, 200, { "Cache-Control": "private, max-age=60" });
+});
+route("GET", "/api/chat/user/:id", async (req, env, p) => {
+  const user = await authUser(env, req);
+  if (!user) return json({ error: "\u8BF7\u5148\u767B\u5F55", code: "AUTH_REQUIRED" }, 401);
+  const target = await findUserById(env, p.id);
+  if (!target) return json({ error: "\u7528\u6237\u4E0D\u5B58\u5728" }, 404);
+  return json({ user: publicProfile(target) }, 200, { "Cache-Control": "private, max-age=30" });
+});
+export default {
+  async fetch(request, env, ctx) {
+    if (request.method === "OPTIONS") {
+      return new Response(null, { status: 204, headers: CORS });
+    }
+    const url = new URL(request.url);
+    const pathname = url.pathname.replace(/\/+$/, "") || "/";
+    if (!pathname.startsWith("/api/")) {
+      return new Response("Not Found", { status: 404 });
+    }
+    if (!_migratedCheckedThisIsolate) {
+      try {
+        await migrateLegacyDb(env);
+      } catch (e) {
+        console.error("[migrate] \u5931\u8D25:", e && e.message);
+      }
+    }
+    for (const r of routes) {
+      if (r.method !== request.method) continue;
+      const m = pathname.match(r.rx);
+      if (!m) continue;
+      const params = {};
+      r.names.forEach((n, i) => {
+        params[n] = decodeURIComponent(m[i + 1]);
+      });
+      try {
+        const res = await r.handler(request, env, params);
+        if (env.sweepPending && ctx && ctx.waitUntil) {
+          ctx.waitUntil(sweepCodes(env).catch(() => {
+          }));
+        }
+        return res;
+      } catch (e) {
+        console.error("[worker] \u9519\u8BEF:", e && e.message, e && e.stack);
+        return json({ error: "\u670D\u52A1\u5668\u5185\u90E8\u9519\u8BEF" }, 500);
+      }
+    }
+    return json({ error: "\u63A5\u53E3\u4E0D\u5B58\u5728" }, 404);
+  }
+};

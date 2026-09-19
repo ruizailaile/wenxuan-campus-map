@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.wrangler/
+worker/.wrangler/
+.env
+.dev.vars
+*.log
+.DS_Store
+
+# 含真实用户数据的冷归档，不入库
+backups/*.sql

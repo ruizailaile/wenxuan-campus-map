@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>交互胶囊重设计 · 墨石 Monolith（OpenAI 风）</title>
+<style>
+  :root {
+    --ink: #111114;
+    --ink-text: #FFFFFF;
+    --surface: rgba(255,255,255,.66);
+    --track: #ECECF1;
+    --thumb: #FFFFFF;
+    --hairline: rgba(0,0,0,.08);
+    --wash: rgba(0,0,0,.06);
+    --text: #0D0D0F;
+    --text-2: #6E6E73;
+    --bg: #F7F7F8;
+    --green: #10A37F; --red: #EF4146; --orange: #FF8A3D;
+  }
+  html[data-theme="dark"] {
+    --ink: #F2F2F3;
+    --ink-text: #0D0D0F;
+    --surface: rgba(27,27,31,.78);
+    --track: #2F2F2F;
+    --thumb: #3A3A40;
+    --hairline: rgba(255,255,255,.10);
+    --wash: rgba(255,255,255,.08);
+    --text: #F3F3F3;
+    --text-2: #9A9AA0;
+    --bg: #131316;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: "SF Pro Text", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--bg); color: var(--text);
+    min-height: 100vh; padding: 24px 16px 140px;
+    transition: background .3s, color .3s;
+  }
+  .top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  h1 { font-size: 20px; font-weight: 700; }
+  .sub { font-size: 13px; color: var(--text-2); margin-bottom: 20px; }
+  .theme-btn {
+    border: 1px solid var(--hairline); background: var(--surface); color: var(--text);
+    border-radius: 999px; padding: 8px 16px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  h2 { font-size: 15px; font-weight: 700; margin: 28px 0 4px; }
+  .desc { font-size: 12.5px; color: var(--text-2); margin-bottom: 14px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--hairline); border-radius: 20px;
+    padding: 18px; margin-bottom: 12px; backdrop-filter: blur(20px) saturate(160%);
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .tag { font-size: 11px; font-weight: 700; letter-spacing: .5px; }
+  .tag.old { color: var(--text-2); }
+  .tag.new { color: var(--green); }
+  .demo-bg { position: relative; border-radius: 16px; overflow: hidden; min-height: 96px; }
+  .demo-bg::before { content: ""; position: absolute; inset: 0;
+    background: linear-gradient(120deg, #cfe0f5, #e8ddf0 45%, #f6e3d3 80%, #d9ecdf); }
+  html[data-theme="dark"] .demo-bg::before {
+    background: linear-gradient(120deg, #1c2333, #241f31 45%, #2e241c 80%, #16241d); }
+
+  /* ===== OLD：橙色光晕胶囊（v3.28 现状，仅示意） ===== */
+  .old-bar {
+    position: relative; display: flex; height: 58px; margin: 14px 10px; border-radius: 999px;
+    background: rgba(30,30,40,.82); backdrop-filter: blur(16px);
+    box-shadow: 0 6px 26px -6px rgba(255,122,47,.5), inset 0 0 0 1px rgba(255,255,255,.14);
+  }
+  .old-bar .ot { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+    color: #9A8C77; font-size: 10px; font-weight: 700; }
+  .old-bar .ot.on { color: #F0782E; }
+  .old-bar .ot.on .ico { background: linear-gradient(160deg, rgba(255,190,130,.38), rgba(255,138,66,.16));
+    box-shadow: 0 4px 14px rgba(255,122,47,.3); }
+  .ico { width: 40px; height: 26px; border-radius: 999px; display: grid; place-items: center; }
+
+  /* ===== NEW：墨石胶囊 ===== */
+  .cap-bar {
+    position: relative; display: flex; height: 58px; margin: 14px 10px; border-radius: 999px;
+    background: var(--surface); backdrop-filter: blur(20px) saturate(160%);
+    border: 1px solid var(--hairline);
+    box-shadow: 0 8px 28px rgba(0,0,0,.10);
+  }
+  .cap-bar .ct {
+    flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px;
+    color: var(--text-2); font-size: 10px; font-weight: 700; border: none; background: none; cursor: pointer;
+    border-radius: 999px; transition: transform .09s ease-out, color .2s;
+  }
+  .cap-bar .ct:active { transform: scale(.92); }
+  .cap-bar .ct .ico { width: 42px; height: 27px; transition: background .25s; }
+  .cap-bar .ct.on { color: var(--ink-text); }
+  .cap-bar .ct.on .ico { background: var(--ink); }
+  .cap-bar .ct svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* chips */
+  .chip-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 12px 0 2px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 16px;
+    border-radius: 999px; border: 1px solid var(--hairline);
+    background: var(--surface); color: var(--text); font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: transform .09s ease-out, background .2s, color .2s;
+  }
+  .chip:active { transform: scale(.94); }
+  .chip.on { background: var(--ink); color: var(--ink-text); border-color: transparent; }
+  .chip.old-style { background: rgba(36,38,64,.85); color: #EDEFFA; border: none; box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 0 14px -2px rgba(255,122,47,.35); }
+
+  /* segmented */
+  .seg3 { display: flex; padding: 3px; border-radius: 999px; background: var(--track); position: relative; }
+  .seg3 .st {
+    flex: 1; position: relative; z-index: 1; min-height: 36px; border: none; background: none; cursor: pointer;
+    font-size: 13px; font-weight: 600; color: var(--text-2); border-radius: 999px;
+    transition: transform .09s ease-out;
+  }
+  .seg3 .st:active { transform: scale(.95); }
+  .seg3 .st.on { color: var(--text); }
+  .seg3 .thumb {
+    position: absolute; z-index: 0; top: 3px; bottom: 3px; border-radius: 999px; background: var(--thumb);
+    box-shadow: 0 1px 4px rgba(0,0,0,.14); transition: left .35s cubic-bezier(.34,1.3,.64,1), width .35s cubic-bezier(.34,1.3,.64,1);
+  }
+  .seg3.old-style { background: rgba(36,38,64,.7); }
+  .seg3.old-style .st.on { color: #F0782E; }
+
+  /* toast */
+  .toast-demo { display: flex; flex-direction: column; gap: 10px; }
+  .toast {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px; border-radius: 999px;
+    background: var(--ink); color: var(--ink-text); font-size: 13px; font-weight: 600;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+  }
+  .toast .dot { width: 7px; height: 7px; border-radius: 50%; flex: none; }
+  .toast.old-style { background: rgba(36,38,64,.9); color: #EDEFFA; box-shadow: 0 8px 24px rgba(0,0,0,.16), 0 0 22px rgba(255,163,107,.45); }
+  .demo-btn {
+    align-self: flex-start; border: none; background: var(--ink); color: var(--ink-text);
+    border-radius: 999px; padding: 10px 18px; font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .demo-btn:active { transform: scale(.96); }
+</style>
+</head>
+<body>
+  <div class="top">
+    <div>
+      <h1>交互胶囊 · 墨石 Monolith</h1>
+      <div class="sub">OpenAI/ChatGPT 风格 —— 明度对比 + 中性灰阶，品牌橙只留 logo/主 CTA</div>
+    </div>
+    <button class="theme-btn" id="themeBtn">🌙 暗色</button>
+  </div>
+
+  <h2>① 底部导航浮岛</h2>
+  <div class="desc">旧：橙色光斑 + 橙色轮廓光环 → 新：中性玻璃 + 墨色实心激活胶囊</div>
+  <div class="card">
+    <span class="tag old">OLD · v3.28</span>
+    <div class="demo-bg"><div class="old-bar">
+      <div class="ot on"><span class="ico">🗺️</span>地图</div><div class="ot">📋 地点</div><div class="ot">🧭 招领</div><div class="ot">💬 聊天</div><div class="ot">👤 我的</div>
+    </div></div>
+    <span class="tag new">NEW · 墨石</span>
+    <div class="demo-bg"><div class="cap-bar" id="capBar">
+      <button class="ct on" data-i="0"><span class="ico"><svg viewBox="0 0 24 24"><path d="M12 21s7-5.1 7-11a7 7 0 1 0-14 0c0 5.9 7 11 7 11z"/><circle cx="12" cy="10" r="2.6"/></svg></span>地图</button>
+      <button class="ct" data-i="1"><span class="ico"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg></span>地点</button>
+      <button class="ct" data-i="2"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v4l2.5 2.5"/></svg></span>招领</button>
+      <button class="ct" data-i="3"><span class="ico"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 1 1-4-6.9L21 4l-1 3.2A8 8 0 0 1 21 12z"/></svg></span>聊天</button>
+      <button class="ct" data-i="4"><span class="ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.4"/><path d="M5 20a7 7 0 0 1 14 0"/></svg></span>我的</button>
+    </div></div>
+  </div>
+
+  <h2>② 快捷 chips</h2>
+  <div class="desc">旧：深蓝玻璃 + 橙光 → 新：中性玻璃，激活=墨色实心</div>
+  <div class="card">
+    <span class="tag old">OLD</span>
+    <div class="chip-row">
+      <button class="chip old-style">🍴 食堂</button><button class="chip old-style">📦 快递站</button><button class="chip old-style">⚽ 运动场</button>
+    </div>
+    <span class="tag new">NEW</span>
+    <div class="chip-row" id="chipRow">
+      <button class="chip on">🍴 食堂</button><button class="chip">📦 快递站</button><button class="chip">⚽ 运动场</button><button class="chip">🏥 医务室</button>
+    </div>
+  </div>
+
+  <h2>③ 分段控件（主题 / 极光）</h2>
+  <div class="desc">旧：灰轨道 + 橙色文字 → 新：灰轨道 + 白/墨滑块（spring 位移动画）</div>
+  <div class="card">
+    <span class="tag old">OLD</span>
+    <div class="seg3 old-style"><button class="st on">跟随系统</button><button class="st">浅色</button><button class="st">深色</button></div>
+    <span class="tag new">NEW</span>
+    <div class="seg3" id="segNew"><span class="thumb"></span><button class="st on">极光</button><button class="st">晨曦</button><button class="st">夜航</button><button class="st">琥珀</button></div>
+  </div>
+
+  <h2>④ Toast 通知</h2>
+  <div class="desc">旧：彩色光晕 → 新：墨色玻璃条 + 单色状态点（语义保留、不再发光）</div>
+  <div class="card toast-demo">
+    <span class="tag old">OLD</span>
+    <div class="toast old-style"><span>✓</span> 已保存收藏</div>
+    <span class="tag new">NEW</span>
+    <div class="toast"><span class="dot" style="background:var(--green)"></span> 已保存收藏</div>
+    <div class="toast"><span class="dot" style="background:var(--red)"></span> 网络异常，请重试</div>
+    <div class="toast"><span class="dot" style="background:var(--orange)"></span> 正在请求定位权限…</div>
+  </div>
+
+  <script>
+    // 主题切换
+    const themeBtn = document.getElementById('themeBtn');
+    themeBtn.addEventListener('click', () => {
+      const dark = document.documentElement.dataset.theme === 'dark';
+      document.documentElement.dataset.theme = dark ? 'light' : 'dark';
+      themeBtn.textContent = dark ? '🌙 暗色' : '☀️ 亮色';
+    });
+    // 浮岛 tab 切换
+    document.querySelectorAll('#capBar .ct').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#capBar .ct').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+      });
+    });
+    // chips 单选
+    document.querySelectorAll('#chipRow .chip').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#chipRow .chip').forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+      });
+    });
+    // 分段控件：滑块跟随 + spring 动画
+    (function () {
+      const seg = document.getElementById('segNew');
+      const thumb = seg.querySelector('.thumb');
+      const btns = [...seg.querySelectorAll('.st')];
+      function move(btn) {
+        thumb.style.left = btn.offsetLeft + 'px';
+        thumb.style.width = btn.offsetWidth + 'px';
+      }
+      btns.forEach(btn => btn.addEventListener('click', () => {
+        btns.forEach(b => b.classList.remove('on'));
+        btn.classList.add('on');
+        move(btn);
+      }));
+      requestAnimationFrame(() => move(seg.querySelector('.st.on')));
+      window.addEventListener('resize', () => move(seg.querySelector('.st.on')));
+    })();
+  </script>
+</body>
+</html>

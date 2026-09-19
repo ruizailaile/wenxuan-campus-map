@@ -1,0 +1,18 @@
+{
+  "name": "wenxuan-campus-map",
+  "version": "3.6.0",
+  "description": "四川文轩职业学院遂宁校区地图 — 全栈版（Express 后端 + Leaflet 前端 + JSON 数据库）",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "seed": "node tools/make-seed.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "iconsax": "^0.1.1"
+  }
+}

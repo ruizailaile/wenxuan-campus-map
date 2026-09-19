@@ -1,0 +1,11 @@
+# 文轩校园地图 — Cloudflare Pages 配置
+# 前端静态资源部署到 Pages；/api/* 由 functions/api/[[path]].js
+# 通过 Service Binding 转发到 Worker「wenxuan-campus-map-api」
+
+name = "wenxuan-campus-map"
+pages_build_output_dir = "dist"
+compatibility_date = "2025-06-01"
+
+[[services]]
+binding = "API"
+service = "wenxuan-campus-map-api"

@@ -1,0 +1,18 @@
+{
+    // 文轩校园地图 — API Worker 配置
+    // 已配置新加坡库（APAC/SIN，2026-09-19 迁移）；如需重建参考：
+    //   npx wrangler d1 create wenxuan-campus-map-db-sg --location=apac
+    "name": "wenxuan-campus-map-api",
+    "main": "src/index.js",
+    "compatibility_date": "2025-06-01",
+    "d1_databases": [
+        {
+            "binding": "DB",
+            "database_name": "wenxuan-campus-map-db-sg",
+            "database_id": "6113edd4-3820-415c-ada4-f725ab182b26"
+        }
+    ],
+    "observability": {
+        "enabled": true
+    }
+}

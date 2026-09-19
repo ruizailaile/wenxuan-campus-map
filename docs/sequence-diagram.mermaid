@@ -1,0 +1,48 @@
+sequenceDiagram
+    participant U as 用户(认领人/发布者)
+    participant FE as lostfound.js
+    participant API as Worker
+    participant DB as D1(lf_posts)
+
+    U->>FE: 点击「✅ 完成认领」
+    FE->>FE: 按钮 loading「确认中…」
+    FE->>API: POST /api/lf/:id/finish (Bearer token)
+    API->>API: authUser 校验身份
+    API->>DB: SELECT data FROM lf_posts WHERE id=?
+    DB-->>API: post(JSON)
+    alt 非发布者且非认领人
+        API-->>FE: 403 只有发布者或认领人可以归档此帖
+        FE-->>U: toast 报错，按钮恢复
+    else 状态非 done
+        API-->>FE: 409 帖子尚未认领完成
+    else 合法
+        API->>API: post.confirmedAt = Date.now(); post.autoDeleteAt = null
+        API->>DB: UPSERT lf_posts (写回 data)
+        DB-->>API: ok
+        API-->>FE: { ok:true, post:{ confirmedAt } }
+        FE->>FE: 更新本地 posts + 重渲染详情
+        FE-->>U: 「✅ 已由你确认完成」，隐藏倒计时
+    end
+
+    participant O as 发布者
+    participant C as 认领人(chat.js)
+
+    O->>FE: 撤回一条 done 帖（二次确认）
+    FE->>API: DELETE /api/lf/:id (Bearer token)
+    API->>API: authUser；校验 post.ownerId === uid
+    API->>DB: SELECT data FROM lf_posts WHERE id=?
+    DB-->>API: post(status=done, claims=[{uid}])
+    alt post.status === done 且有认领人
+        API->>API: writeSystemMessage(owner, claimer, "你认领的「xx」已被发布者撤回")
+        API->>DB: INSERT messages(sender='system', room='dm:owner:claimer', data={system:1})
+    end
+    API->>DB: DELETE FROM lf_posts WHERE id=?
+    API-->>FE: { ok:true, notified:true }
+    FE->>FE: closeDetail + load() 刷新列表
+    Note over C: 认领人打开聊天 → GET /api/chat/sysrooms
+    C->>API: GET /api/chat/sysrooms
+    API->>DB: 查 room 含 sender='system' 的 dm 房间
+    DB-->>API: rooms
+    API-->>C: 系统通知入口列表
+    C->>API: GET /api/chat?room=dm:... (放宽：好友 OR 含系统消息)
+    API-->>C: 消息含 system:1 → 前端渲染 🛎️ 气泡(不可删)

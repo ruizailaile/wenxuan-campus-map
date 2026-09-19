@@ -1,0 +1,350 @@
+{
+  "$schema": "https://design-tokens.github.io/community-group/format/",
+  "$description": "文轩遂宁校区地图 · 液态玻璃设计系统令牌（逆向自 css/style.css v3.8，AI 生成页面时直接引用）",
+  "color": {
+    "brand": {
+      "accent": {
+        "value": "#FF7A2F",
+        "description": "主行动色（橙）· 悬浮按钮/导航按钮"
+      },
+      "accentLight": {
+        "value": "#FFA36B"
+      },
+      "primary": {
+        "value": "#34B47C",
+        "description": "成功/定位/正面反馈（绿）"
+      },
+      "blue": {
+        "value": "#4E9BE6",
+        "description": "信息/链接"
+      },
+      "purple": {
+        "value": "#9D7BEC",
+        "description": "宿舍/氛围"
+      },
+      "pink": {
+        "value": "#F473A8",
+        "description": "强调/女性向标签"
+      }
+    },
+    "text": {
+      "primary": {
+        "value": "#1c1c28"
+      },
+      "light": {
+        "value": "#5a5a6e"
+      },
+      "muted": {
+        "value": "#8e8ea3"
+      }
+    },
+    "glass": {
+      "bg": {
+        "value": "rgba(255, 255, 255, 0.55)"
+      },
+      "bgStrong": {
+        "value": "rgba(255, 255, 255, 0.68)"
+      },
+      "bgSoft": {
+        "value": "rgba(255, 255, 255, 0.38)"
+      },
+      "darkBg": {
+        "value": "rgba(34, 36, 62, 0.86)",
+        "description": "深色模式玻璃底"
+      },
+      "edgeGlow": {
+        "value": "linear-gradient(135deg, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.15) 38%, rgba(255,255,255,0.05) 62%, rgba(255,255,255,0.75) 100%)"
+      }
+    },
+    "category": {
+      "gate": "#4E9BE6",
+      "teaching": "#34B47C",
+      "canteen": "#FF7A2F",
+      "dorm": "#9D7BEC",
+      "sports": "#F0556B",
+      "library": "#3D7BC4",
+      "admin": "#F473A8",
+      "service": "#8e8ea3",
+      "stage": "#F5B93D"
+    },
+    "semantic": {
+      "error": {
+        "value": "#F0556B"
+      },
+      "warning": {
+        "value": "#F5B93D"
+      },
+      "success": {
+        "value": "#34B47C"
+      }
+    }
+  },
+  "material": {
+    "glassBlur": {
+      "value": "blur(28px) saturate(180%)",
+      "description": "L2 控件层"
+    },
+    "glassBlurStrong": {
+      "value": "blur(40px) saturate(200%)",
+      "description": "L1 面板层（弹窗/抽屉）"
+    },
+    "specularHighlight": {
+      "value": "inset 0 1px 0 rgba(255, 255, 255, 0.85)",
+      "description": "顶部 1px 镜面高光，液态玻璃签名②"
+    }
+  },
+  "shadow": {
+    "glass": {
+      "value": [
+        {
+          "x": 0,
+          "y": 2,
+          "blur": 8,
+          "color": "rgba(30,30,60,0.06)"
+        },
+        {
+          "x": 0,
+          "y": 12,
+          "blur": 32,
+          "color": "rgba(30,30,60,0.12)"
+        },
+        {
+          "x": 0,
+          "y": 24,
+          "blur": 64,
+          "color": "rgba(78,155,230,0.10)"
+        }
+      ],
+      "description": "三件套：接触阴影 + 扩散阴影 + 蓝色环境光晕（签名③）"
+    },
+    "glassHover": {
+      "value": [
+        {
+          "x": 0,
+          "y": 4,
+          "blur": 12,
+          "color": "rgba(30,30,60,0.08)"
+        },
+        {
+          "x": 0,
+          "y": 18,
+          "blur": 44,
+          "color": "rgba(30,30,60,0.16)"
+        },
+        {
+          "x": 0,
+          "y": 32,
+          "blur": 80,
+          "color": "rgba(78,155,230,0.16)"
+        }
+      ]
+    },
+    "popover": {
+      "value": [
+        {
+          "x": 0,
+          "y": 6,
+          "blur": 20,
+          "color": "rgba(20,22,45,0.16)"
+        },
+        {
+          "x": 0,
+          "y": 18,
+          "blur": 44,
+          "color": "rgba(20,22,45,0.22)"
+        }
+      ]
+    }
+  },
+  "radius": {
+    "sm": {
+      "value": "14px",
+      "description": "小控件/列表项/气泡按钮"
+    },
+    "md": {
+      "value": "22px",
+      "description": "标准卡片/玻璃面板"
+    },
+    "lg": {
+      "value": "28px",
+      "description": "大弹窗/浮层"
+    },
+    "pill": {
+      "value": "999px",
+      "description": "胶囊按钮/芯片（使用频率最高）"
+    },
+    "sheet": {
+      "value": "26px 26px 0 0",
+      "description": "底部抽屉顶角"
+    },
+    "bubble": {
+      "value": "16px",
+      "description": "锚定气泡"
+    }
+  },
+  "typography": {
+    "fontFamily": {
+      "value": "\"SF Pro Display\", \"SF Pro Text\", \"PingFang SC\", \"HarmonyOS Sans SC\", \"Microsoft YaHei\", sans-serif"
+    },
+    "scale": {
+      "title": {
+        "value": {
+          "fontSize": "17px",
+          "weight": 600
+        }
+      },
+      "body": {
+        "value": {
+          "fontSize": "14px",
+          "weight": 400
+        }
+      },
+      "label": {
+        "value": {
+          "fontSize": "12px",
+          "weight": 500
+        }
+      },
+      "caption": {
+        "value": {
+          "fontSize": "10.5px",
+          "weight": 500
+        }
+      }
+    }
+  },
+  "motion": {
+    "easeSpring": {
+      "value": "cubic-bezier(0.34, 1.56, 0.64, 1)",
+      "description": "弹簧回弹：弹出/吸附/选中（≈ damping 0.6）"
+    },
+    "easeGlass": {
+      "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+      "description": "玻璃滑入：面板浮现/悬浮过渡"
+    },
+    "duration": {
+      "fast": {
+        "value": "160ms",
+        "description": "按压反馈/气泡消失"
+      },
+      "base": {
+        "value": "280ms",
+        "description": "气泡弹出/芯片切换"
+      },
+      "slow": {
+        "value": "420ms",
+        "description": "抽屉吸附/卡片展开"
+      },
+      "reveal": {
+        "value": "700ms",
+        "description": "页面首次浮现"
+      }
+    },
+    "pressScale": {
+      "value": 0.96,
+      "description": "按压缩小反馈"
+    },
+    "dragDamping": {
+      "value": {
+        "up": 0.4,
+        "down": 0.85,
+        "fullCollapse": 0.82
+      },
+      "description": "底部抽屉拖拽阻尼（v3.8 实测值）"
+    },
+    "sheetSnap": {
+      "value": {
+        "expand": "-38px 或上滑速度>0.45px/ms",
+        "close": "140px 或下甩>0.65px/ms",
+        "peekFromFull": "90px"
+      }
+    },
+    "aurora": {
+      "value": "36s ease-in-out infinite alternate",
+      "description": "L0 极光背景漂移周期"
+    }
+  },
+  "layout": {
+    "modalMaxWidth": {
+      "value": "448px"
+    },
+    "sheetMaxHeight": {
+      "value": "86vh",
+      "description": "抽屉半屏态"
+    },
+    "safeBottom": {
+      "value": "env(safe-area-inset-bottom)"
+    },
+    "mobileBreakpoint": {
+      "value": "768px"
+    },
+    "thumbZone": {
+      "value": "屏幕底部 30%",
+      "description": "主操作按钮优先布置在拇指热区"
+    }
+  },
+  "layer": {
+    "zMap": {
+      "value": 0,
+      "description": "地图/底图"
+    },
+    "zLegend": {
+      "value": 800,
+      "description": "图例/小地图"
+    },
+    "zTabbar": {
+      "value": 2000,
+      "description": "底部导航"
+    },
+    "zModal": {
+      "value": 2000,
+      "description": "弹窗/抽屉"
+    },
+    "zEditPanel": {
+      "value": 2100,
+      "description": "编辑面板（必须高于 Tab 栏）"
+    },
+    "zPopover": {
+      "value": 2600,
+      "description": "锚定气泡（最高交互层）"
+    },
+    "zToast": {
+      "value": 3000,
+      "description": "全局提示"
+    }
+  },
+  "accessibility": {
+    "reducedMotion": {
+      "value": "@media (prefers-reduced-motion: reduce) 禁用弹簧动画与拖拽动效，改为直接切换",
+      "description": "已实现"
+    },
+    "darkMode": {
+      "value": "[data-theme=dark] 108+ 条覆盖规则，玻璃底色 rgba(34,36,62,.86)，文字 #e8eaf6"
+    },
+    "contrast": {
+      "value": "玻璃上的正文用 --color-text（#1c1c28），禁用 muted 做正文"
+    }
+  },
+  "fx": {
+    "v3.27-ningguang": {
+      "glow-accent-rgb": "255, 122, 47",
+      "contour-glow": "inset 0 0 0 1px rgba(255,255,255,.30), 0 10px 34px -10px rgba(255,122,47,.38)",
+      "ripple-duration": "0.55s",
+      "press-squish": "0.90~0.94 scale, 0.09s ease-out",
+      "release-rebound": "0.4s~0.45s cubic-bezier(0.34, 1.56, 0.64, 1)",
+      "pblur-cap-height": "30px",
+      "pblur-max-blur": "14px"
+    },
+    "v3.29-monolith": {
+      "cap-ink-light": "#111114",
+      "cap-ink-dark": "#F2F2F3",
+      "cap-surface-light": "rgba(255,255,255,.66)",
+      "cap-surface-dark": "rgba(27,27,31,.78)",
+      "cap-track": "#ECECF1 / #2F2F2F",
+      "cap-thumb": "#FFFFFF / #3A3A40",
+      "cap-hairline": "rgba(0,0,0,.08) / rgba(255,255,255,.10)",
+      "brand-orange-kept-for": "logo icon, primary CTA, POI map accents",
+      "reference": "design/design.md（墨石 Monolith）"
+    }
+  }
+}

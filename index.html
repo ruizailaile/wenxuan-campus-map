@@ -1,0 +1,1062 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="U8AsYAuYWPQsUlPH5dk5eF">
+<head data-page-node-id="5Ju4rQVdAtuCQrjB73vRZL">
+    <meta charset="UTF-8" data-page-node-id="udyrFLUiShC9xN3TPlHrlQ">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" data-page-node-id="qXRdRek2ph4NH8dZAHJK7C">
+    <meta name="theme-color" content="#FFF7EE" data-page-node-id="cGIBRssbwpIBOkKvSGxJdO">
+    <meta name="apple-mobile-web-app-capable" content="yes" data-page-node-id="qDoC1fWwbxG8IcsZE3yIzu">
+    <meta name="mobile-web-app-capable" content="yes" data-page-node-id="PRlB8pqUug46rEqFDjPuIT">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" data-page-node-id="0oNb4qgWvGlIFOFbjqBTQM">
+    <meta name="apple-mobile-web-app-title" content="校园导览" data-page-node-id="weuaCRrflCQY4Zixxzrtf9">
+    <link rel="manifest" href="manifest.webmanifest" data-page-node-id="JDjZPRhvpRLyVC6ZIVHMhN">
+    <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" data-page-node-id="EPl5pYGQNnc8ZSnwloQrCr">
+    <link rel="icon" type="image/png" href="assets/icons/icon-192.png" data-page-node-id="lhkL21F9pKkVg0v4hSBn7h">
+    <title>校园导览 · 四川文轩职业学院遂宁校区</title>
+    <!-- 自救入口：URL 带 ?reset=1 时清空缓存与 SW 后重新进入，专治白屏/旧版卡住 -->
+    <script>
+    (function () {
+        if (!/[?&]reset=1/.test(location.search)) return;
+        var done = function () { location.replace(location.pathname); };
+        var p = Promise.resolve();
+        if ('serviceWorker' in navigator) {
+            p = p.then(function () {
+                return navigator.serviceWorker.getRegistrations();
+            }).then(function (regs) {
+                return Promise.all(regs.map(function (r) { return r.unregister(); }));
+            });
+        }
+        if ('caches' in window) {
+            p = p.then(function () { return caches.keys(); })
+                 .then(function (keys) {
+                     return Promise.all(keys.map(function (k) { return caches.delete(k); }));
+                 });
+        }
+        p.then(done, done);
+    })();
+    </script>
+    <!-- 主题预加载：首帧前定下深浅色，避免闪烁 -->
+    <script>
+    (function () {
+        try {
+            var raw = localStorage.getItem('wenxuan_campus_app_v2');
+            var pref = raw ? (JSON.parse(raw).settings || {}).theme : 'system';
+            var dark = pref === 'dark' || ((!pref || pref === 'system')
+                && window.matchMedia('(prefers-color-scheme: dark)').matches);
+            document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        } catch (e) { document.documentElement.dataset.theme = 'light'; }
+    })();
+    </script>
+    <!-- Leaflet CSS: 地图框架的样式表 -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" data-page-node-id="LHpUcZSQVCra2cLMO6y46e" />
+    <link rel="stylesheet" href="css/style.css?v=98" data-page-node-id="vETb8wGHrDndJhDJCQsQrn" />
+</head>
+<body data-tab="map" data-page-node-id="zmIbHMahCaLcmM5axN7AkS">
+    <!-- ============ 启动屏（冷启动过渡） ============ -->
+    <div id="splash" aria-hidden="true" data-page-node-id="LDsvIdjpwTr3B4GdHykmKx">
+        <div class="splash-mark" data-page-node-id="i7Kaa10giCosHadrEiV8Rh"><img src="assets/icons/icon-192.png" alt="" data-page-node-id="0GZRKr4vPNs2jZRQvHR40j"></div>
+        <div class="splash-name" data-i18n="school.name" data-page-node-id="QmSiEk6rTPPX2zxLY3JolW">四川文轩职业学院</div>
+        <div class="splash-sub" data-i18n="school.suining" data-page-node-id="bdKh4mAvcgAac0HaFfVrhH">遂宁校区 · 校园导览</div>
+    </div>
+
+    <!-- ============ 首次使用引导（3 页） ============ -->
+    <div id="onboard" class="hidden" role="dialog" aria-label="新手引导" data-page-node-id="eckhOzNnbfOUv9AmBNT4aI">
+        <div class="ob-deco ob-d1" data-page-node-id="MnoYwfaaV85HcNlGoZD88i"></div>
+        <div class="ob-deco ob-d2" data-page-node-id="TkEyo9pPYkGmb6HEMhFQ25"></div>
+        <div class="ob-card" data-page-node-id="LG4NXDsiPfWitPJyDdWDAU">
+            <div class="ob-slides" data-page-node-id="P0023TvYzrCfkKK5OyIfbx">
+                <section class="ob-slide active" data-page-node-id="YRkMwhITecqexfbGCohB4m">
+                    <div class="ob-emoji" data-page-node-id="vqRHf6cPEVasLar9G7Xezj">🗺️</div>
+                    <h2 data-i18n="ob.t1" data-page-node-id="6WAeUx4AGiyxtgkwHFlPUT">一图览校园</h2>
+                    <p data-i18n="ob.d1" data-page-node-id="VgBcnEznZdFXCFOaxv9r2f">官方导视图整图呈现，47 个地点分类圆点，拖动缩放自由查看</p>
+                </section>
+                <section class="ob-slide" data-page-node-id="M2ADXp97Avv7XDUeo3FNDl">
+                    <div class="ob-emoji" data-page-node-id="0rFrZhMadrOwzox6lK5vyE">🔍</div>
+                    <h2 data-i18n="ob.t2" data-page-node-id="jz2MFMPEp2LcYMN7Qn13eK">找地方很快</h2>
+                    <p data-i18n="ob.d2" data-page-node-id="CLYiwd7mTqqXcjWpaEV4ve">按分类筛选或直接搜索，常去的地点一键收藏</p>
+                </section>
+                <section class="ob-slide" data-page-node-id="6DsCB7eHyUBfhuf5I4K71s">
+                    <div class="ob-emoji" data-page-node-id="pFa2LMgAEhsCx1wVFWdJFq">🧭</div>
+                    <h2 data-i18n="ob.t3" data-page-node-id="HYcY3IZIcCZUfYRKzatrLq">路线随身带</h2>
+                    <p data-i18n="ob.d3" data-page-node-id="UMH26A9RwBo7cIbR5mFgpC">选起终点即得步行路线，右上角小地图随时定位全局</p>
+                </section>
+            </div>
+            <div class="ob-dots" data-page-node-id="hhlg1NvL8C83elVEjGQpbP"><i class="active" data-page-node-id="YHeUaE86yeU7xq1UseGocH"></i><i data-page-node-id="2Gg8XNUJM6AHcAyForoNKc"></i><i data-page-node-id="Cjgrb1dh98jZ8j3Mc9wSbx"></i></div>
+            <button id="obNext" class="btn-primary" data-i18n="ob.next" data-page-node-id="4XY48aWLzD8R1E8c5OUwCY">下一步</button>
+            <button id="obSkip" class="ob-skip" data-i18n="ob.skip" data-page-node-id="VFoemHrr6XzKPsVh9ec6Mg">跳过</button>
+        </div>
+    </div>
+
+    <div id="app" data-page-node-id="42IgPX3XEwqr2wKopNN07D">
+        <!-- ============ 页面：地图（默认） ============ -->
+        <main id="map-container" class="page page-map" data-page-node-id="TWM3RjOtqL566ZdMvxcZaK">
+            <div id="map" data-page-node-id="768FqGdhRX360Ai22ht3ns"></div>
+
+            <!-- 地图页顶部：校名 logo（左）+ 紧凑搜索圆钮（下方） -->
+            <div class="campus-logo" data-page-node-id="IGkYvEGLIyY7mAXPEsHvyU">
+                <div class="logo-icon" data-page-node-id="rc4eCVQiCV4R1S1rXrxATP"><iconsax-icon name="teacher" type="linear" size="28" aria-hidden="true"></iconsax-icon></div>
+                <div class="logo-text" data-page-node-id="OsjGkErRWC6Fr4RVSf7AWL">
+                    <div class="logo-title" data-i18n="school.name" data-page-node-id="KHDnix7xm7sXnv48W7pUZJ">四川文轩职业学院</div>
+                    <div class="logo-sub" data-i18n="school.suining" data-page-node-id="wUjEW8LOFiYFA7NAjFQivD">遂宁校区 · 校园导览</div>
+                </div>
+            </div>
+
+            <!-- 紧凑搜索入口（手机：收纳为玻璃圆钮） -->
+            <button id="searchFab" class="search-fab" aria-label="搜索地点" data-page-node-id="tlpdUWsn2IiJZOEzH5EMF1">
+                <svg viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="zEUYFwuh3wKPQZch7cenfa"><circle cx="11" cy="11" r="6.5" data-page-node-id="gRzd6LHY7pBUZHEkqPq8BN"/><path d="m20 20-4.4-4.4" data-page-node-id="c7eomxiVghPzC6X31R5D8O"/></svg>
+                <span data-i18n="search.placeholder" data-page-node-id="FlpPVYOLjmSZlIRGKI1Xs5">搜索地点</span>
+            </button>
+
+            <!-- 全屏搜索浮层（手机） -->
+            <div id="searchOverlay" class="search-overlay hidden" role="dialog" aria-label="搜索地点" data-page-node-id="IOCCcWLs1W2XUwrpNNxBWh">
+                <div class="so-panel" data-page-node-id="CSrJcZQr8rIflUobWbY42s">
+                    <div class="so-head" data-page-node-id="Q3jxpWvYfFhSanBpFk6NrT">
+                        <div class="so-inputwrap" data-page-node-id="bnosC9T14DSO3UpCfZrxls">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="TU8QRIyYKcErs0BrgbIz6x"><circle cx="11" cy="11" r="6.5" data-page-node-id="qaYOeRHcChGlpxHdddX3x5"/><path d="m20 20-4.4-4.4" data-page-node-id="C9cYI0g18wCTGxUGF5e5Vw"/></svg>
+                            <input type="text" id="soInput" placeholder="搜索教学楼、食堂、宿舍…" data-i18n-ph="search.input.ph" aria-label="搜索地点" autocomplete="off" enterkeyhint="search" data-page-node-id="VSnHFjRHsJytNcMuEsd2nT">
+                            <button id="soClear" class="so-clear hidden" aria-label="清空" data-page-node-id="Vhdf1vm8wl8bb7ZAoOKgxa">✕</button>
+                        </div>
+                        <button id="soGo" class="so-go" aria-label="搜索" data-i18n="search.go" data-page-node-id="iLQ74sJHT7F5ylRZnhb8Pf">搜索</button>
+                        <button id="soClose" class="so-close" aria-label="关闭搜索" data-i18n="search.cancel" data-page-node-id="NSZt4YPnN9CqaFyKp7FMbX">取消</button>
+                    </div>
+                    <div class="so-hist" id="soHist" data-page-node-id="46Or2wPpeSI3rZF2UB6FEj"></div>
+                    <div class="so-cats" id="soCats" data-page-node-id="hzsUyODk36tcVQfCgYmHVm"></div>
+                    <div class="so-results" id="soResults" data-page-node-id="cDU8otVoONbcq8UxrVVL3q"></div>
+                </div>
+            </div>
+
+            <!-- 指北针装饰 -->
+            <div class="compass" data-page-node-id="kvhugP6pOrCET5YbKPNrAD">
+                <div class="compass-needle" data-page-node-id="SQ2W0c2qRPmAI5wx8S5SFN"></div>
+                <span class="compass-n" data-page-node-id="5QfKkt3lS1fsUfvsLkxrhL">N</span>
+            </div>
+
+            <!-- 视野模式切换（竖屏：浏览 ↔ 全览） -->
+            <button id="viewToggle" class="view-toggle" aria-label="切换视野模式" data-page-node-id="TTOzCLQic98Vma9IIVA1qm"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-page-node-id="ALQvilDbPnUttCXyYU4oDH"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3" data-page-node-id="pDufzNlwgqm7BiVA1gmsyr"/></svg><span data-i18n="view.overview" data-page-node-id="se638O4i5x69eCCNBrHfM1">全览</span></button>
+
+            <!-- 新生导览（入口 + 进行中卡片） -->
+            <div id="tourLauncher" class="tour-launcher" role="region" aria-label="新生导览" data-page-node-id="oHBBnjoMO6XK8HQT6EyNS8">
+                <button id="tourBtn" class="tour-btn" aria-label="开始新生导览" data-page-node-id="RHQdI2bIsm7Oz8B4ZTtkS5"><iconsax-icon name="teacher" type="linear" size="16" aria-hidden="true"></iconsax-icon><span data-i18n="tour.btn" data-page-node-id="gAczdeB7NC31MBvYxFXFUY">新生导览</span></button>
+            </div>
+
+            <!-- 导览起点 + 模式选择器（点击 tourBtn 弹出） -->
+            <div id="tourPicker" class="tour-picker hidden" role="dialog" aria-label="选择导览路线" data-page-node-id="cukBm6F990yc0vzm4WayKV">
+                <div class="tour-picker-title" data-i18n="tour.mode.title" data-page-node-id="9Y77tu8wl9hCILIQ1iHyKB">选择路线</div>
+                <div class="tour-modes" data-page-node-id="8MFrSZOFcuVKm2m9rkLYTd">
+                    <button class="tour-mode" data-mode="nearest" data-page-node-id="vYLKHGYPz9G9HEnSGEk9QJ">
+                        <div class="tour-mode-name" data-page-node-id="kDeFYyLlijyHVTOM5Ok7ar"><iconsax-icon name="routing-2" type="linear" size="16" aria-hidden="true"></iconsax-icon><span data-i18n="tour.mode.nearest">最近优先</span></div>
+                        <div class="tour-mode-tip" data-i18n="tour.mode.nearest.tip" data-page-node-id="oAQOzceU1VQ3n5BGCbXNdl">按校园路网优化，适合初次熟悉校园</div>
+                    </button>
+                    <button class="tour-mode" data-mode="checkin" data-page-node-id="MoI6w9xIuRU1fKDf3CUCUk">
+                        <div class="tour-mode-name" data-page-node-id="6MwBwA5Z0WLr2ij0MDqUKn"><iconsax-icon name="building-4" type="linear" size="16" aria-hidden="true"></iconsax-icon><span data-i18n="tour.mode.checkin">报到处顺序</span></div>
+                        <div class="tour-mode-tip" data-i18n="tour.mode.checkin.tip" data-page-node-id="aI3Uo8TfbNcjHWmz8gC7To">大门起步，优先宿舍、餐厅与快递服务</div>
+                    </button>
+                    <button class="tour-mode" data-mode="daily" data-page-node-id="XoW9JCvtFHgLUiRl6m6ZFW">
+                        <div class="tour-mode-name" data-page-node-id="yFOypcMGdnj6IdUrh01mxz"><iconsax-icon name="home-2" type="linear" size="16" aria-hidden="true"></iconsax-icon><span data-i18n="tour.mode.daily">生活动线</span></div>
+                        <div class="tour-mode-tip" data-i18n="tour.mode.daily.tip" data-page-node-id="PXAXXwjLVP3XBRx2iM4Dfx">覆盖宿舍、食堂、快递、医务等常用地点</div>
+                    </button>
+                </div>
+                <div class="tour-start" data-page-node-id="eCOg7mh2Y62vywvH0BxdGN">
+                    <button class="tour-start-opt" id="tourStartHere" data-page-node-id="KtBqqRNUoGC5MbrrMKOwZ5">
+                        <span class="tour-start-ico" data-page-node-id="5WTwNpvTCAOPMHjVceMYYz"><iconsax-icon name="location" type="linear" size="16" aria-hidden="true"></iconsax-icon></span>
+                        <span data-i18n="tour.start.from.here" data-page-node-id="L8Ha3cXAxkbWdLk2qJ69EG">从「我的位置」开始</span>
+                    </button>
+                    <button class="tour-start-opt" id="tourStartGate" data-page-node-id="YxbB5fDMtfZEYFKPgUeR6H">
+                        <span class="tour-start-ico" data-page-node-id="FJBrpxSKBJsvQuXDIB3ALy"><iconsax-icon name="building-4" type="linear" size="16" aria-hidden="true"></iconsax-icon></span>
+                        <span data-i18n="tour.start.from.gate" data-page-node-id="uOVzzwM065Px0Vgpqaka8y">从「学院大门」开始</span>
+                    </button>
+                </div>
+                <button id="tourPickerClose" class="tour-picker-close" aria-label="关闭" data-page-node-id="qAueAXPaZyd7WH98HfIu8n">✕</button>
+            </div>
+
+            <!-- 导览进行中的底部卡片 -->
+            <div id="tourCard" class="tour-card hidden" role="dialog" aria-label="导览进度" data-page-node-id="9HhkcC9rEXbdvBiSEkAoBS">
+                <button id="tourExit" class="tour-exit" aria-label="退出导览" data-page-node-id="n0sps0EiDpouAFEUXHXw0m">✕</button>
+                <div class="tour-head" data-page-node-id="lsKEAmNg7WDY4EbfAM48q8">
+                    <div class="tour-step" id="tourStep" data-page-node-id="zKuU0CF0mwKAPaOGX4uYzG">1 / 9</div>
+                    <div class="tour-dots" id="tourDots" aria-hidden="true" data-page-node-id="PIrtDuRE4J16n4fRDL67Q9"></div>
+                    <div class="tour-mode-badge" id="tourModeBadge" data-page-node-id="Y9lLrCVtjGqt4pc8rZYvnG">⚡</div>
+                </div>
+                <div class="tour-name" id="tourName" data-page-node-id="kD0NNliFnUJAB8vo2nyCJA">学院大门</div>
+                <div class="tour-tip" id="tourTip" data-page-node-id="GHyhHXwKCuoHlLFC7XpZuT"></div>
+                <div class="tour-leg" id="tourLeg" data-page-node-id="A3LZkifu5Kq7IADDszA3NK"></div>
+                <div class="tour-summary" id="tourSummary" data-page-node-id="8DVPSH374geTAPszgDS7BF"></div>
+                <div class="tour-legend" data-page-node-id="6lDV4C2CrS01NAZuAnRo8V">
+                    <span data-page-node-id="4VKFu15gSQf6v3m8YDadSf"><i class="legend-dot active" data-page-node-id="nTkTvZwQCacw3H40sZjEls"></i><span data-i18n="tour.legend.active" data-page-node-id="c0vqyEBJ9uEme2pqKsvViR">当前段</span></span>
+                    <span data-page-node-id="Dipt5ioMZjKUUPDNswceSN"><i class="legend-dot upcoming" data-page-node-id="qAlcDWIIJmse3KzGMu3Szf"></i><span data-i18n="tour.legend.upcoming" data-page-node-id="qTHJ4S84pqlqn4FxSpBX93">未到达</span></span>
+                    <button id="tourModeBtn" class="tour-mode-btn" data-i18n="tour.mode.change" data-page-node-id="g8hX4p6nHbmq2CWphibrSu">切换模式</button>
+                </div>
+                <div class="tour-actions" data-page-node-id="iVAKDOMptPoFL6azhY48Tg">
+                    <button id="tourPrev" class="btn-ghost btn-sm" data-i18n="tour.prev" data-page-node-id="GcEJECuuRPeH9S96KCzzYB">上一步</button>
+                    <button id="tourNext" class="btn-primary btn-sm" data-i18n="tour.next" data-page-node-id="QBZW4XTkOoYxPBNHTCoaa3">下一步</button>
+                </div>
+            </div>
+
+            <!-- 小地图：放大浏览时显示整校 + 当前取景框，点按跳转 -->
+            <div id="mapOverview" class="map-overview" role="img" aria-label="校园全貌小地图" data-page-node-id="SkCnAgZyA7TgxYV6aFH7W4">
+                <img src="assets/campus-map.jpg?v=98" alt="" data-page-node-id="Dk9NVIIkBaJEpJkbgoCZI9">
+                <div class="ov-rect" data-page-node-id="HVuRz8kWmMnu9yNuluvXt5"></div>
+            </div>
+
+            <!-- 导航面板（默认隐藏） -->
+            <div id="nav-panel" class="nav-panel hidden" data-page-node-id="ydambSMT9VDfjL380GWTw7">
+                <div class="nav-header" data-page-node-id="Kl8XWbwPILk3JgpeAGRj1P">
+                    <h3 data-page-node-id="N1Xywl4dPK9YdHrLXPZxoH">🧭 <span data-i18n="nav.title" data-page-node-id="HSmp7mYhehnABIzBGCoaxG">路线导航</span></h3>
+                    <button id="navClose" class="btn-close" data-page-node-id="X2NTxXhsmodCLysa8ddcj7">✕</button>
+                </div>
+                <div class="nav-body" data-page-node-id="DCAyoyCPPYAUkvoroVy2Me">
+                    <div class="nav-endpoints" data-page-node-id="YMn0QX2XlHKVUlC0qPP7yP">
+                        <div class="nav-point" data-page-node-id="jEbViyQEwUcinYcaDPuX0l">
+                            <label data-i18n="nav.start" data-page-node-id="H68YFPlDeAYjPyqbtDOOz9">起点</label>
+                            <select id="navStart" data-page-node-id="avdXBdJhJ9cuJCVYQgfAWv"></select>
+                        </div>
+                        <div id="navWays" data-page-node-id="u2Gqx5trBGjSgvHvEUOq4E"></div>
+                        <div class="nav-point" data-page-node-id="cvA2aFNLtCfMjkwTUlGJYX">
+                            <label data-i18n="nav.end" data-page-node-id="TXD7GoXanDspNtL0VCZ2O3">终点</label>
+                            <select id="navEnd" data-page-node-id="0LOP7GVh7IESjuNQ3V0m44"></select>
+                        </div>
+                    </div>
+                    <button id="navAddWay" class="btn-ghost btn-way" data-i18n="nav.addway" data-page-node-id="TizLDHbiOhua9KOT7XauMY">＋ 添加途经点</button>
+                    <button id="navGo" class="btn-primary" data-i18n="nav.go" data-page-node-id="bJllRYyjQOVtiloJSzGwZz">开始导航</button>
+                    <button id="navClear" class="btn-ghost" data-i18n="nav.clear" data-page-node-id="1qfK6ozvW5Bplb7G1MIjii">清除路线</button>
+                    <div id="navResult" class="nav-result" data-page-node-id="N6iWgPOeMkCBl7lStLuqKS"></div>
+                    <div id="navSteps" class="nav-steps hidden" data-page-node-id="50qoRPmWX0ityt8m6jBtjj"></div>
+                </div>
+            </div>
+
+            <!-- 浮动操作组：Apple 式竖排玻璃胶囊（我的位置 / 导航 / 添加地标） -->
+            <div class="fab-stack" role="toolbar" aria-label="地图操作" data-page-node-id="oAX0ybfuxny80SklDJwqH0">
+                <button id="locToggle" class="fab fab-loc" title="我的位置" aria-label="设置我的位置" data-page-node-id="TtlnUcgjdwZAerv2s28blF">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" data-page-node-id="KIQbHAqIuDFex81WMjcubC"><path d="M21.6 2.4a1.1 1.1 0 0 0-1.16-.27L3.62 9.3a1.1 1.1 0 0 0 .13 2.1l7.1 2.06 2.06 7.1a1.1 1.1 0 0 0 2.1.13l7.17-16.82a1.1 1.1 0 0 0-.58-1.47Z" data-page-node-id="7JTdqCOsR1mLOHA58cA0rI"/></svg>
+                </button>
+                <button id="navToggle" class="fab" title="路线导航" aria-label="打开路线导航面板" data-page-node-id="Gq53uXES0V6LwyMKfEEfgE">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-page-node-id="TincY7Js1ym8dD7j9UHlAq"><circle cx="6" cy="19" r="2.4" data-page-node-id="BTX3o4MTJkVBngwj6rOyUj"/><path d="M9 19h8.5a3.5 3.5 0 0 0 0-7h-11a3.5 3.5 0 0 1 0-7H15" data-page-node-id="7PJzn77ZKuBzcLPisETvhs"/><circle cx="18" cy="5" r="2.4" data-page-node-id="8MLs2OvrGZIFq9jVo0DArt"/></svg>
+                </button>
+                <button id="addToggle" class="fab fab-secondary" title="添加地标" aria-label="在地图上添加新地标" data-page-node-id="vkcnQcVetqMfA5c08fVIP7">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-page-node-id="qmGaIcfoSxmLbd1DrdkWnh"><path d="M12 5v14M5 12h14" data-page-node-id="VZI7MlJKMomFihRKHlH3h3"/></svg>
+                </button>
+            </div>
+
+            <!-- 添加地标面板（点击地图后弹出） -->
+            <div id="add-panel" class="add-panel hidden" data-page-node-id="pgBkacHtGWdKCuMqh56l8o">
+                <div class="add-header" data-page-node-id="MOM15caG74YcZzZ5IuE2m5">
+                    <h4 data-page-node-id="aPn7NjBKAb0VS5mTaDOyJB">📍 <span data-i18n="add.title" data-page-node-id="yF8hT5nb0NrkwjvSeGEoJa">添加新地标</span></h4>
+                    <button id="addCancel" class="btn-close add-close" aria-label="取消添加" data-page-node-id="nutIxTF1mxmBfjW9wEGQdq">✕</button>
+                </div>
+                <input type="text" id="addName" placeholder="输入地标名称（如：实验楼）" data-i18n-ph="add.name.ph" maxlength="20" aria-label="地标名称" data-page-node-id="Hv6Pc94kKUDy1ngdgwWCyy" />
+                <div class="add-cats" id="addCats" data-page-node-id="9PkjiUtS1gmNxf1NOZ8lVi"></div>
+                <button id="addConfirm" class="btn-primary btn-sm" data-i18n="add.confirm" data-page-node-id="MaQMbeZhGTxggq7R5DZ9n8">确认添加</button>
+            </div>
+
+            <!-- 编辑地点面板（信息弹窗 → 编辑） -->
+            <div id="edit-panel" class="add-panel edit-panel hidden" data-page-node-id="7xPDA3ZDdddPg6bJHPXjgx">
+                <div class="add-header" data-page-node-id="xpuFDfdMudZTz4FlUim8Uc">
+                    <h4 data-page-node-id="d51CxU2M3nfU2807LjcbtF">✏️ <span data-i18n="edit.title" data-page-node-id="4tOVCOqdPGwnL5Hwn5E75B">编辑地点</span></h4>
+                    <button id="editCancel" class="btn-close add-close" aria-label="取消编辑" data-page-node-id="odIrpWPT1H1GTgdH6hWjeW">✕</button>
+                </div>
+                <input type="text" id="editName" placeholder="地点名称" data-i18n-ph="edit.name.ph" maxlength="20" aria-label="地点名称" data-page-node-id="8dDitja9h9UPSuCWsux2V4" />
+                <div class="add-cats" id="editCats" data-page-node-id="RTwLwLrfzvgVkjh4gmLFFz"></div>
+                <textarea id="editDesc" rows="2" maxlength="60" placeholder="一句话简介（可选）" data-i18n-ph="edit.desc.ph" aria-label="地点简介"></textarea>
+                <button id="editMove" class="btn-ghost btn-sm" data-page-node-id="yol9qRA4u8EwQwyBJpw6th">📌 <span data-i18n="edit.move" data-page-node-id="RNfEqHfuHJ6FFqGF7ESR2z">调整位置（点地图或拖圆点）</span></button>
+                <button id="editSave" class="btn-primary btn-sm" data-i18n="edit.save" data-page-node-id="9NQHFJczGVndXXIpQtQHH7">保存修改</button>
+                <div class="edit-panel-foot" data-page-node-id="MRB88wUDXoKE8LUBo4crwR">
+                    <button id="editRestore" class="btn-ghost btn-sm hidden" data-page-node-id="qDpTpZz8gspCqpXnqTObDh">↩️ <span data-i18n="edit.restore" data-page-node-id="CQOKTXdD9lzHGrEuHJ51dn">恢复默认</span></button>
+                    <button id="editDelete" class="btn-delete btn-sm" data-page-node-id="VU5GyyJlAOlH8C8ToXad4l">🗑️ <span data-i18n="edit.del" data-page-node-id="ccv0tasJHxwDjaKGBZipWT">删除该地点</span></button>
+                </div>
+            </div>
+
+            <!-- Toast 通知容器 -->
+            <div id="toast-container" class="toast-container" aria-live="polite" data-page-node-id="JZuZ03NRtosIB8OKrNnT8y"></div>
+
+            <!-- 图例 -->
+            <div class="legend" id="legend" data-page-node-id="ChFTTdwu5ptbedmzjbQiiP">
+                <button class="legend-toggle" id="legendToggle" aria-expanded="true" aria-label="展开或收起图例" data-page-node-id="FE3m78h6ilRlxADQo8wEsP">
+                    <span data-page-node-id="VtbdEllUK2AP0x5MLgrX2Q">🎨 <span data-i18n="legend.title" data-page-node-id="fciaJ2KCT1nBqfHIf3FRoi">图例</span></span><span class="legend-arrow" data-page-node-id="zaNNBqWMRR744uxMwSyael">▾</span>
+                </button>
+                <div class="legend-body" id="legendBody" data-page-node-id="Zb7SeRzb07NoMjUm9mT07e">
+                    <div class="legend-item" data-cat="gate" data-page-node-id="bw1gzR4lFBsW78Bkbyoo5A"><span class="dot gate" data-page-node-id="gkBn6EN4ho0FdUhfvmucHM"></span><span data-i18n="cat.gate" data-page-node-id="ancG5E2BdmGJw5YXLIIEpP">校门</span></div>
+                    <div class="legend-item" data-cat="teaching" data-page-node-id="xar8TFUEJhCdvy91uxsIwX"><span class="dot teaching" data-page-node-id="KSYPqgR2WM9HLHKG05NhK8"></span><span data-i18n="cat.teaching" data-page-node-id="GjQLfxoDmAENvtYVrfiWIC">教学楼</span></div>
+                    <div class="legend-item" data-cat="training" data-page-node-id="wU0rT3tINtm9MFdfyJdull"><span class="dot training" data-page-node-id="mX7pIqCkZaerZZmFzBv2YD"></span><span data-i18n="cat.training" data-page-node-id="W5nFNuGvE9EYf17yBHy013">实训楼</span></div>
+                    <div class="legend-item" data-cat="dorm" data-page-node-id="fZalZ5QSuyz9QDk85lcBxF"><span class="dot dorm" data-page-node-id="Ju7sOISSq4N5H2a8XKwaGn"></span><span data-i18n="cat.dorm" data-page-node-id="z5m2bGRDSvpvXGtH0cFsbv">学生宿舍</span></div>
+                    <div class="legend-item" data-cat="faculty" data-page-node-id="9AWzlvmjKVKvi6bRIhmK9G"><span class="dot faculty" data-page-node-id="4J4q1FP9fzABhaqoIGeBk6"></span><span data-i18n="cat.faculty" data-page-node-id="cZ6N1zCz4SvqkQQAQf96T7">教师宿舍</span></div>
+                    <div class="legend-item" data-cat="canteen" data-page-node-id="TylrJZBo0UIClmABou5HZB"><span class="dot canteen" data-page-node-id="DqudDJ9L3fQ04kJqG5AQxg"></span><span data-i18n="cat.canteen" data-page-node-id="hBonsb7utXyoiFsnokmtXW">食堂</span></div>
+                    <div class="legend-item" data-cat="sports" data-page-node-id="XnWcsEIJoN9s1Esnknvdkf"><span class="dot sports" data-page-node-id="yODSv8vbuOxelYrzzwy07H"></span><span data-i18n="cat.sports" data-page-node-id="Hk9ELfK8ekXWw8W5C7NXRx">运动场</span></div>
+                    <div class="legend-item" data-cat="landmark" data-page-node-id="F0CYsjBJ8KNBMvVj2P7lwR"><span class="dot landmark" data-page-node-id="iiqpqP0ieBc4OxzjvKx9if"></span><span data-i18n="cat.landmark" data-page-node-id="ZlYYRxVC9UbV7krle95Hga">地标</span></div>
+                    <div class="legend-item" data-cat="academic" data-page-node-id="9ca37PCuiRGkDd8LH2UpU6"><span class="dot academic" data-page-node-id="M5Vu8Jn2nj7u96Ory1faBL"></span><span data-i18n="cat.academic" data-page-node-id="bWWbW90wTKTUrHjqNOuTuL">学术/演艺</span></div>
+                    <div class="legend-item" data-cat="service" data-page-node-id="EeWfC1PGfGpo0NYvRP7Gxf"><span class="dot service" data-page-node-id="lH7SAtZARwhtMKKuRHt9IF"></span><span data-i18n="cat.service" data-page-node-id="zbln0e84xGoekuEEyfKDal">生活服务</span></div>
+                </div>
+            </div>
+
+            <!-- v3.21：热门地点快捷 chips（地图底部、Tab 栏上方，横向可滚动） -->
+            <div id="quickChips" class="quick-chips" role="navigation" aria-label="热门地点" data-page-node-id="wBrbhBpCTt2m2bsnCKfGhh"></div>
+        </main>
+
+        <!-- ============ 页面：列表（手机 Tab，桌面即侧边栏） ============ -->
+        <aside id="sidebar" class="page page-list" data-page-node-id="2xgJ5DN0Ia6zh2DFdg3AYy">
+            <!-- 顶部标题 -->
+            <div class="sidebar-header" data-page-node-id="IYVzzhoeVQEF2YMgahxRnT">
+                <h1 data-page-node-id="iUbAKdEPrLLdkyRVAami2n">🗺️ <span data-i18n="list.title" data-page-node-id="CABVnXsQgztNkyWPlT76pp">校园地图</span></h1>
+                <p class="subtitle" data-i18n="list.subtitle" data-page-node-id="VsmMksHU4wWoRrWhPBhrYz">建筑定位 · 路线导航</p>
+            </div>
+
+            <!-- 结果计数 -->
+            <div class="result-count" id="resultCount" aria-live="polite" data-page-node-id="ZbzSBBljRMviWfHNXsWeSK"></div>
+
+            <!-- 分类筛选标签 -->
+            <div class="category-filters" id="categoryFilters" data-page-node-id="BJ6gk4RiYAklx8XmxlEpD4">
+                <!-- JS 动态生成 -->
+            </div>
+
+            <!-- 建筑列表 -->
+            <div class="building-list" id="buildingList" data-page-node-id="HQarzc940BYqKnhLpWJXvU">
+                <!-- JS 动态生成 -->
+            </div>
+        </aside>
+    </div>
+
+    <!-- ============ 页面：个人中心 ============ -->
+    <section id="page-profile" class="app-page" aria-label="个人中心" data-page-node-id="tTWB0zY0YceI7ckUx7nShc">
+        <header class="ap-header" data-page-node-id="OTyIVC7gtxLBQTpRxpmFDE">
+            <button class="ap-back" data-goto="map" aria-label="返回地图" data-page-node-id="V8O9sAiNELDGCMYTIWAAcR">‹</button>
+            <h2 data-i18n="profile.title" data-page-node-id="cElADXg80LnrOmhvaKCrb8">个人中心</h2>
+        </header>
+
+        <!-- 用户卡片（账号卡：头像/昵称/邮箱·年级·专业 + 编辑/退出；头像在编辑资料里改） -->
+        <div id="accountCard" class="account-card-wrap" data-page-node-id="J0J13GClkCZ5h5qzT60o7V"></div>
+
+        <!-- 数据统计 -->
+        <div class="stat-row" data-page-node-id="i2zzeEDfOHEQLqNhYLOtUY">
+            <div class="stat-cell" data-page-node-id="QUzY6nHsg3un4SN9pGh6Hw"><b id="statLandmarks" data-page-node-id="MsXq9CTNgud5z2XUw8Hfkq">0</b><span data-i18n="profile.landmarks" data-page-node-id="3Z15heMEfTrGq6HIWX2Wgz">我的地标</span></div>
+            <div class="stat-cell" data-page-node-id="D7YZXp2w7Nx2bFNXHPnD5y"><b id="statFav" data-page-node-id="lfTAz1h3DEykAWSm3CMl0d">0</b><span data-i18n="profile.fav" data-page-node-id="Akxz81U1MQKGTKEdpxGcA9">收藏</span></div>
+            <div class="stat-cell" data-page-node-id="tcZoufmznQnsVR2BfNKCDH"><b id="statHistory" data-page-node-id="FkSZGRRFnlGBSXggi8ifsM">0</b><span data-i18n="profile.history" data-page-node-id="rYMBdNXvmynaw1Bf4tMmDt">浏览过</span></div>
+        </div>
+
+        <!-- 我的地标 -->
+        <div class="profile-section" data-page-node-id="NMMKtdzhPFpPYI1fCSKbzj">
+            <div class="ps-title" data-page-node-id="xLrtCieC6gEb3tDeOa2UTs">
+                <span data-page-node-id="Me2czkaCC4rdLUpUZLhdPz"><iconsax-icon name="location" type="linear" size="17" aria-hidden="true"></iconsax-icon> <span data-i18n="profile.landmarks" data-page-node-id="o72ZtKFIznxR3P7in2VSWA">我的地标</span></span>
+                <button class="ps-action" data-goto="map" data-action="add" data-page-node-id="zKC0yEjxwxI1HQCZgcH4mc">＋ <span data-i18n="profile.add" data-page-node-id="cEGccQchObp3T0xwt3QmLS">去添加</span></button>
+            </div>
+            <div id="myLandmarkList" class="ps-list" data-page-node-id="xJUsTj8BSvDQnQTbIprt0a"></div>
+        </div>
+
+        <!-- 我的收藏 -->
+        <div class="profile-section" data-page-node-id="QyBqiEUfMKKVSupFDk4dXx">
+            <div class="ps-title" data-page-node-id="mw125hGqtv9eMDvASmWgOc"><span data-page-node-id="tJjjeACV6E4j53rwTzcsaV"><iconsax-icon name="star" type="linear" size="17" aria-hidden="true"></iconsax-icon> <span data-i18n="profile.fav" data-page-node-id="x3yzL3FgbYIVQFBeapJFo1">我的收藏</span></span><span class="ps-title-hint" data-i18n="profile.sort.hint" data-page-node-id="9n99UH6XkHa2twOxwF3oLZ">长按拖动排序</span></div>
+            <div id="myFavList" class="ps-list" data-page-node-id="ZisZdLq51ZUyI6unQxmlMB"></div>
+        </div>
+
+        <!-- 最近浏览 -->
+        <div class="profile-section" data-page-node-id="mAVjAMckdWCYcJq3bSt5SI">
+            <div class="ps-title" data-page-node-id="lT4aj2uDrSlohkCWO6Yadc"><span data-page-node-id="zrelbJeG47TDdi3wQMrYfs"><iconsax-icon name="clock" type="linear" size="17" aria-hidden="true"></iconsax-icon> <span data-i18n="profile.history" data-page-node-id="B3WAkZP40jriNC9GB6KTmK">最近浏览</span></span></div>
+            <div id="myHistoryList" class="ps-list" data-page-node-id="qPPWThhtn0X4T8e1cg4xVj"></div>
+        </div>
+
+        <!-- 入口列表 -->
+        <div class="entry-list" data-page-node-id="1X6E3eXykjmKgyNG0vLSSU">
+            <button class="entry-item" data-goto="settings" data-page-node-id="GJS9Hp3CgcBGq6vFNlSNym">
+                <span class="ei-icon" data-page-node-id="E0UJ0Qzkuf9Qlwo0Hn2IGQ"><iconsax-icon name="setting-2" type="linear" size="22" aria-hidden="true"></iconsax-icon></span><span data-i18n="profile.settings" data-page-node-id="G0Z1qlymIDc4uUMevdVfRe">设置</span><span class="ei-arrow" data-page-node-id="I5HFH42TAjBECUFrCzDkYc">›</span>
+            </button>
+            <button class="entry-item" id="btnSOS" data-page-node-id="s6QMHbztAe6T5U1Hu6kkpv">
+                <span class="ei-icon" data-page-node-id="eMb9DIEOJh9dnIwzFK7EOi"><iconsax-icon name="danger" type="linear" size="22" aria-hidden="true"></iconsax-icon></span><span data-i18n="profile.sos" data-page-node-id="tu82tAd4zPDJTDLwtoSjxH">紧急求助</span>
+                <span class="ei-desc" data-i18n="profile.sos.desc" data-page-node-id="PltxoLCgcdwgFBa6eDAMX9">一键呼叫校园保卫处</span><span class="ei-arrow" data-page-node-id="wtoFbszvpWqPGH5cPaDrS2">›</span>
+            </button>
+            <button class="entry-item" data-action="clear-history" data-page-node-id="u1fhGoh9IDBpvcocQZD1KU">
+                <span class="ei-icon" data-page-node-id="yE386evutSugf0hvTVjSl2"><iconsax-icon name="broom" type="linear" size="22" aria-hidden="true"></iconsax-icon></span><span data-i18n="profile.clear.history" data-page-node-id="BcYfd9kvsNQmF1w44rpmWE">清空浏览记录</span><span class="ei-arrow" data-page-node-id="DGwuDg04SzpnsIZW7IocpF">›</span>
+            </button>
+            <button class="entry-item" id="btnHelp" data-page-node-id="7tLrGTbxBe589yygI9P2J2">
+                <span class="ei-icon" data-page-node-id="2LK0Hl2newnpotFTpAMUtE"><iconsax-icon name="message-question" type="linear" size="22" aria-hidden="true"></iconsax-icon></span><span data-i18n="profile.help" data-page-node-id="CRHg3EUajHIhJFcR0GLElX">帮助与反馈</span><span class="ei-arrow" data-page-node-id="KIGw7qv61yhldCUKzT8nhb">›</span>
+            </button>
+        </div>
+    </section>
+
+    <!-- ============ 页面：设置 ============ -->
+    <section id="page-settings" class="app-page" aria-label="设置" data-page-node-id="1CxaCwthyUOpIt6bUMvVER">
+        <header class="ap-header" data-page-node-id="8gGgRSwx5WysgMVCBB3osT">
+            <button class="ap-back" data-goto="profile" aria-label="返回个人中心" data-page-node-id="YcIitUUFxZi1PXgSlNxWwp">‹</button>
+            <h2 data-i18n="settings.title" data-page-node-id="rbPjHTTI1z5DzwyTViyZR9">设置</h2>
+        </header>
+
+        <div class="settings-scroll" data-page-node-id="L73OwPKRXnrZZPq9UAjXwo">
+            <!-- 外观 -->
+            <div class="set-group" data-page-node-id="EjIPFw0KFHUebcGlq7wpCC">
+                <div class="set-group-title" data-page-node-id="a0hDoqCkfeGYXCXRyGQeDv">
+                    <span class="set-group-label" data-page-node-id="XZ8UT6eWHMLEG3M8ztnFgP"><iconsax-icon class="set-group-icon" name="brush" type="linear" size="20" aria-hidden="true"></iconsax-icon><span data-i18n="settings.appearance" data-page-node-id="FCPe8x6CYl0CDS1BElkB3z">外观</span></span>
+                    </div>
+                <div class="set-group-body" data-page-node-id="ETHXOnkgenfZnMUqkJYNvx">
+                <div class="set-item" data-page-node-id="6ecwzNgAYp51DLqLwzE8BJ">
+                    <div class="set-text" data-page-node-id="V1TMBbanIit04rH9sdjHT6">
+                        <div class="set-name" data-i18n="settings.theme" data-page-node-id="fYHNuxDsmdznK0jeAjR54e">主题模式</div>
+                        <div class="set-desc" data-i18n="settings.theme.desc" data-page-node-id="b9XBOC0Ei0AJQvrotED2ET">深色更护眼，跟随系统会随手机自动切换</div>
+                    </div>
+                </div>
+                <div class="seg" id="themeSeg" role="radiogroup" aria-label="主题模式" data-page-node-id="YE3z4VXK7QE1AsUdvDlwav">
+                    <button class="seg-btn active" data-theme="system" role="radio" aria-checked="true" data-i18n="settings.theme.system" data-page-node-id="uLSQwIS8yymVmG0IZqDO6I">跟随系统</button>
+                    <button class="seg-btn" data-theme="light" role="radio" aria-checked="false" data-i18n="settings.theme.light" data-page-node-id="HmfxDxfm9ruFUGNV2VYhys">浅色</button>
+                    <button class="seg-btn" data-theme="dark" role="radio" aria-checked="false" data-i18n="settings.theme.dark" data-page-node-id="DsQMBwMf26PE7nzMuEJCmv">深色</button>
+                </div>
+                <div class="set-item">
+                    <div class="set-text">
+                        <div class="set-name" data-i18n="settings.aurora">极光灵感主题</div>
+                        <div class="set-desc" data-i18n="settings.aurora.desc">换一组背景光斑配色，轮播每天自动换新</div>
+                    </div>
+                </div>
+                <div class="seg" id="auroraSeg" role="radiogroup" aria-label="极光灵感主题">
+                    <button class="seg-btn active" data-aurora="aurora" role="radio" aria-checked="true" data-i18n="settings.aurora.aurora">极光</button>
+                    <button class="seg-btn" data-aurora="dawn" role="radio" aria-checked="false" data-i18n="settings.aurora.dawn">晨曦</button>
+                    <button class="seg-btn" data-aurora="night" role="radio" aria-checked="false" data-i18n="settings.aurora.night">夜航</button>
+                    <button class="seg-btn" data-aurora="amber" role="radio" aria-checked="false" data-i18n="settings.aurora.amber">琥珀</button>
+                    <button class="seg-btn" data-aurora="auto" role="radio" aria-checked="false" data-i18n="settings.aurora.auto">轮播</button>
+                </div>
+                <div class="set-item set-static" style="flex-direction:column;align-items:stretch;padding:0;" data-page-node-id="mDHh1vxJKaSBTbHRuRyaoG">
+                    <div class="glass-range-row" data-page-node-id="f9L4h79o2JbLABJl1Y6SR3">
+                        <span class="glass-range-label" data-i18n="settings.alpha" data-page-node-id="vSvMGvkNmYdiOIEXrhFJ2y">透明度</span>
+                        <input type="range" class="glass-range" id="glassAlpha" min="10" max="90" step="1" aria-label="玻璃透明度" data-page-node-id="qa49P83gEB5esLEDCCUGuL">
+                        <output class="glass-range-val" id="glassAlphaVal" for="glassAlpha" aria-live="polite" data-page-node-id="Iley9ZZKOCQIr4OSADkz7N">55%</output>
+                    </div>
+                    <div class="glass-range-row" data-page-node-id="JyyJUEUwDE7M9TGBURXNdl">
+                        <span class="glass-range-label" data-i18n="settings.blur" data-page-node-id="zdBSWzKG8kH0CTCjhlfF7L">模糊度</span>
+                        <input type="range" class="glass-range" id="glassBlur" min="0" max="48" step="1" aria-label="玻璃模糊度" data-page-node-id="MYM7ZFE2AJCoIQZIwSWEzc">
+                        <output class="glass-range-val" id="glassBlurVal" for="glassBlur" aria-live="polite" data-page-node-id="KxyQqKz7Ue20vnbgO0zH9E">28px</output>
+                    </div>
+                </div>
+                </div>
+            </div>
+
+            <!-- 定位 -->
+            <div class="set-group" data-page-node-id="yRzzAStATzQBadmETNrY9j">
+                <div class="set-group-title" data-page-node-id="XCUMOrpzAXGQmo1RITFiiN">
+                    <span class="set-group-label" data-page-node-id="cw2sTVa8Fa5AC2mB50hdyG"><iconsax-icon class="set-group-icon" name="location" type="linear" size="20" aria-hidden="true"></iconsax-icon><span data-i18n="settings.location" data-page-node-id="X11QZ4iJAuZMKMS4vq6mbA">位置</span></span>
+                    </div>
+                <div class="set-group-body" data-page-node-id="ADJHmbr0eih3SFxdZx94wj">
+                <!-- 定位服务：一条胶囊开关搞定（开启=请求系统定位，仅本地记录；关闭=清除设备位置） -->
+                <div class="set-item" data-page-node-id="BG2BRGPjQunwvGX4qj44OG">
+                    <div class="set-text" data-page-node-id="e5In8YkXeKRlvEJTjaD8Zy">
+                        <div class="set-name" data-page-node-id="QHYHM14sVBdQSKbJLNy3WZ"><svg class="set-item-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6 7 7M17 17l1.4 1.4M18.4 5.6 17 7M7 17l-1.4 1.4"/></svg><span data-i18n="settings.geo" data-page-node-id="Gw0NXxvY6IoAEbYJv1Qkin">定位服务</span></div>
+                        <div class="set-desc" id="permGeoDesc" data-i18n="settings.geo.desc" data-page-node-id="VVSyETK4n82KDGcIXOLWLI">开启后自动获取设备位置，仅本地记录</div>
+                    </div>
+                    <button class="switch" id="swGeoService" role="switch" aria-checked="false" aria-label="定位服务" data-page-node-id="bDPAJOdXRyu608Y4B9LPjE"></button>
+                </div>
+                <!-- 位置操作胶囊组（横向滚动） -->
+                <div class="geo-actions" id="geoActions" data-page-node-id="pdPIfJc2urzXjGppzDpeFi">
+                    <button class="geo-action-btn" id="btnSetLocation" data-page-node-id="HPaC2c8zwvmztLR6GDFisF">
+                        <svg class="geo-action-ico" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="Zsjkalo2HVvncUVK7jP35r"><path d="M12 21s7-5.2 7-11a7 7 0 1 0-14 0c0 5.8 7 11 7 11Z"/><circle cx="12" cy="10" r="2.25"/></svg><span data-i18n="settings.myloc.set" data-page-node-id="XbfS0A7CRUjIlzZDnkfE6e">在地图设点</span>
+                    </button>
+                    <button class="geo-action-btn geo-action-danger" id="btnRemoveLocation" data-page-node-id="XTPFvJWIGg9QLaj7mnQbXQ">
+                        <svg class="geo-action-ico" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="uegfbVPTufKPDCO7KNA1KD"><path d="M4 7h16M9 7V5h6v2M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg><span class="geo-action-label" data-i18n="settings.myloc.remove" data-page-node-id="BzQSKf46BBBXDia3G7WbjU">清除位置</span>
+                    </button>
+                </div>
+                <div class="set-item" data-page-node-id="B3UBPDDS7Ojd0KxNJnaUiZ">
+                    <div class="set-text" data-page-node-id="xSAVTKJcVF2mJEPvCgFITK">
+                        <div class="set-name" data-i18n="settings.myloc" data-page-node-id="vtuFZ2P5kfTKfIHV4l6qGl">我的位置标记</div>
+                        <div class="set-desc" data-i18n="settings.myloc.desc" data-page-node-id="819BHN9lnR6rjDB3Wcp0B2">在地图上显示蓝色定位点，可拖动调整</div>
+                    </div>
+                    <button class="switch" id="swShowLocation" role="switch" aria-checked="false" aria-label="显示我的位置" data-page-node-id="xFT6P5vo6a4PHJRjVGtiiL"></button>
+                </div>
+                </div>
+            </div>
+
+            <!-- 隐私 -->
+            <div class="set-group" data-page-node-id="MMmZxcf4RK55uJAGYJMiBE">
+                <div class="set-group-title" data-page-node-id="fq0dqKdMofdLjHx2EIvFLt">
+                    <span class="set-group-label" data-page-node-id="hvff1QrUYArxkGyGP86Byl"><iconsax-icon class="set-group-icon" name="shield-tick" type="linear" size="20" aria-hidden="true"></iconsax-icon><span data-i18n="settings.privacy" data-page-node-id="fS2MeinFEfGFcsSvkATnbe">隐私</span></span>
+                    </div>
+                <div class="set-group-body" data-page-node-id="lS66OExR2FyHAM5ybzas3N">
+                <div class="set-item" data-page-node-id="TItFIgrQ3V9CI6js8h7USg">
+                    <div class="set-text" data-page-node-id="zrLTAEzUjHbaiqUS2UXn2R">
+                        <div class="set-name" data-i18n="settings.anonymous" data-page-node-id="R5omEunKtBO1FmzjHyEivD">匿名模式</div>
+                        <div class="set-desc" data-i18n="settings.anonymous.desc" data-page-node-id="MYOuh5ZoYgEemGoviY7We5">开启后不记录浏览历史，我的位置仅本地可见</div>
+                    </div>
+                    <button class="switch" id="swAnonymous" role="switch" aria-checked="false" aria-label="匿名模式" data-page-node-id="2EiRxeU8ZCOk6OpmBYWS4W"></button>
+                </div>
+                <button class="set-item set-btn" data-goto="permissions" data-page-node-id="k57BVimQgWi5KN5DZmsU1v">
+                    <span class="ei-icon" data-page-node-id="toXyBh8ePxOzwWPNPlsPRX"><iconsax-icon name="shield-security" type="linear" size="20" aria-hidden="true"></iconsax-icon></span><span data-i18n="settings.perm" data-page-node-id="43MAzCODxgyZlxESfEb8SA">隐私与权限</span><span class="ei-arrow" data-page-node-id="gR3gOaoO1dJbsbTpCENRAj">›</span>
+                </button>
+                <div class="set-item set-static" data-page-node-id="JWYyPZZm6dzwSXIr3e7mHe">
+                    <div class="set-text" data-page-node-id="lG6RrZznVJoDpaTEXuTBK6">
+                        <div class="set-name" data-i18n="settings.storage" data-page-node-id="nOT3u5XHOPlkERSFoNM6wy">数据存储说明</div>
+                        <div class="set-desc" data-i18n="settings.storage.desc" data-page-node-id="qQe0T4ADHMG6QCtdY9v2EG">昵称、地标、收藏与设置仅保存在本机浏览器（localStorage），不上传任何服务器，清除浏览器数据即删除。</div>
+                    </div>
+                </div>
+                <button class="set-item set-btn set-danger" id="btnClearAll" data-page-node-id="QAyeHvMuccPjsFywzmjPNu">
+                    <span class="ei-icon" data-page-node-id="NjjQEx9rpIMaqFi8IS6YFS"><iconsax-icon name="trash" type="linear" size="20" aria-hidden="true"></iconsax-icon></span><span data-i18n="settings.clear.all" data-page-node-id="naJh9FU5S8E9BBziXxWAdZ">清除全部本地数据</span>
+                </button>
+                </div>
+            </div>
+
+            <!-- 通用 -->
+            <div class="set-group" data-page-node-id="n4yiZ86VlPbCulpLL4GB4o">
+                <div class="set-group-title" data-page-node-id="BpgtgW9DcWJ0nOU9brvbgd">
+                    <span class="set-group-label" data-page-node-id="VQaCs1Dd8R0uT9pYUlZnky"><iconsax-icon class="set-group-icon" name="setting-4" type="linear" size="20" aria-hidden="true"></iconsax-icon><span data-i18n="settings.general" data-page-node-id="c4tEf5kF4TWbY16wGwaAJx">通用</span></span>
+                    </div>
+                <div class="set-group-body" data-page-node-id="lECd6NrXJ7mIlNVXwDfEG4">
+                <!-- 语言选择器 -->
+                <div class="set-item lang-item" data-page-node-id="oPPHzPTZ2BBzcEQEtknfHY">
+                    <div class="set-text" data-page-node-id="EleHNvbBWz7zAzHFMXeTKR">
+                        <div class="set-name" data-i18n="settings.language" data-page-node-id="qnPctAGu8AGxofToegxUOB">语言 / Language</div>
+                        <div class="set-desc" id="langCurrentDesc" data-page-node-id="ET3V3wljRgMHs8efeQcLGM">简体中文</div>
+                    </div>
+                    <button class="set-check lang-picker-btn" id="btnOpenLangPicker" data-page-node-id="ba9YpegyfP5SnXElak92PN">选择 ›</button>
+                </div>
+                <div class="set-item" data-page-node-id="QJ1HF4NnP1qm4krGMTD3PP">
+                    <div class="set-text" data-page-node-id="GZIedA4bbv3ftjPEfshiOm">
+                        <div class="set-name" data-i18n="settings.remember.view" data-page-node-id="ofFavcelygckX9r6hjhsfp">启动时完整显示全图</div>
+                        <div class="set-desc" data-i18n="settings.remember.view.desc" data-page-node-id="1ZeHHE48jB5e8tFxWKB74p">每次打开先看到整张校园图（关闭则恢复上次的浏览位置）</div>
+                    </div>
+                    <button class="switch" id="swRememberView" role="switch" aria-checked="true" aria-label="启动时完整显示全图" data-page-node-id="EykmkRHRLrcajWlXVMCsBo"></button>
+                </div>
+                <div class="set-item" data-page-node-id="KiA8qz8SwJqb7OFVE3cAIP">
+                    <div class="set-text" data-page-node-id="l0gOCuYHfYByYJhADMgi4q">
+                        <div class="set-name" data-i18n="settings.poi" data-page-node-id="BZIoFyIqdvWb3zVHPd1wHj">官方地点数据</div>
+                        <div class="set-desc" id="poiEditDesc" data-i18n="settings.poi.default" data-page-node-id="JteELhsqNRBu6hCLr0itO9">未修改过官方地点</div>
+                    </div>
+                    <button class="set-check" id="btnResetPoi" data-i18n="settings.reset" data-page-node-id="DdioMGhRgiNYkTTcmG3TXK">恢复默认</button>
+                </div>
+                </div>
+            </div>
+
+            <!-- 关于 -->
+            <div class="set-group" data-page-node-id="JK15PNOhSF81Rkh1WBdqg3">
+                <div class="set-group-title" data-page-node-id="zX0ovJqST7TUq3VIOpBxgS">
+                    <span class="set-group-label" data-page-node-id="XtciRa1BhbD31im6wvK35V"><iconsax-icon class="set-group-icon" name="info-circle" type="linear" size="20" aria-hidden="true"></iconsax-icon><span data-i18n="settings.about" data-page-node-id="UCFHdd6I8ZCzvGwwRxKw9J">关于</span></span>
+                    </div>
+                <div class="set-group-body" data-page-node-id="hMNumPYsrhdADxQMGrBQJL">
+                <div class="set-item" data-page-node-id="KozALydvOxkAfQsLS1Mq11">
+                    <div class="set-text" data-page-node-id="HKY7peEltwO16UIGTUDsgJ">
+                        <div class="set-name" data-i18n="settings.update" data-page-node-id="4OX3CDQaufzqWKZpVkfzA9">检查更新</div>
+                        <div class="set-desc" id="updateDesc" data-i18n="settings.update.latest" data-page-node-id="qeveURzL8VmzMwp4nzDlxS">当前为优化版 v3.37</div>
+                    </div>
+                    <button class="set-check" id="btnUpdate" data-i18n="settings.check" data-page-node-id="dj8G5srAVJHp2ghP0bFTZz">检查</button>
+                </div>
+                <div class="set-item set-static" data-page-node-id="DQoZrHueyxxVJfsVwqqFnr">
+                    <div class="set-text" data-page-node-id="XO9DbtAzNMI15Ge5bVwfRw">
+                        <div class="set-name" data-page-node-id="1exAEP09lDcwfpGJsMgpkw"><iconsax-icon name="profile-circle" type="linear" size="18" aria-hidden="true"></iconsax-icon> <span data-i18n="settings.author" data-page-node-id="sTk9NGCU5GJ75BpFLxwVEa">作者</span></div>
+                        <div class="set-desc" data-i18n="settings.author.desc" data-page-node-id="SjIm2MlZYLoVCiXvJnE9i9">锐仔来了 · 独立开发与维护</div>
+                    </div>
+                </div>
+                <button class="set-item set-btn" id="btnFeedback" data-page-node-id="nKl1j8AspnbHTbFlAZA5q5">
+                    <span class="ei-icon" data-page-node-id="2AZmMgoYeXV8xupSwjbRJS"><iconsax-icon name="message-question" type="linear" size="20" aria-hidden="true"></iconsax-icon></span><span data-i18n="settings.feedback" data-page-node-id="riuwUXCq6XRGH6ee7cogHC">地图反馈</span><span class="set-desc" style="margin-left:auto" data-page-node-id="LSmFAHuxm2IpAVCIDP0Dds">Q群 1094409084</span><span class="ei-arrow" data-page-node-id="heWcYQEiPx4WkEr7uNXLo2">›</span>
+                </button>
+                <div class="set-item set-static" data-page-node-id="N7WJsVDEatFpHNGDABPEsF">
+                    <div class="set-text" data-page-node-id="rFfXLiK3FNNtkCvc3oSGgC">
+                        <div class="set-name" data-page-node-id="gK2cvfH1IwVL3hsntQ4UZA"><iconsax-icon name="map-1" type="linear" size="18" aria-hidden="true"></iconsax-icon> <span data-i18n="settings.roadmap" data-page-node-id="K55oAUOvnAtY6k8QTLkhD3">更新计划</span></div>
+                        <div class="set-desc" data-i18n="settings.roadmap.desc" data-page-node-id="nLfhiab6yAGTomZB16ENFN">后续更新：全面优化体验 · 添加地址位置信息</div>
+                    </div>
+                </div>
+                <button class="set-item set-btn" id="btnTerms" data-page-node-id="dDZtTjFCrzg1mXEGJqml7N">
+                    <span class="ei-icon" data-page-node-id="s6ZZXmz3dMEPW50AXwPUpb"><iconsax-icon name="document-text" type="linear" size="20" aria-hidden="true"></iconsax-icon></span><span data-i18n="settings.terms" data-page-node-id="ok74Ytp7ivCJeupBlFHkQ7">用户协议</span><span class="ei-arrow" data-page-node-id="de61Ra7IowYD7zzJ9YITP5">›</span>
+                </button>
+                <button class="set-item set-btn" id="btnPrivacy" data-page-node-id="dEh7rEw7JeJPhiSJB9XrjR">
+                    <span class="ei-icon" data-page-node-id="dNjBC0h7DxNiOz0qpqR3Ps"><iconsax-icon name="padlock" type="linear" size="20" aria-hidden="true"></iconsax-icon></span><span data-i18n="settings.privacy.policy" data-page-node-id="0h1E75dekkOWcdbmpnv1ge">隐私政策</span><span class="ei-arrow" data-page-node-id="satPL74gthfPIj3IHyZlZa">›</span>
+                </button>
+                <div class="set-item set-static" data-page-node-id="lRwJk1lE2WHtpkxDXAZcXG">
+                    <div class="set-text" data-page-node-id="KENNFV0dFRTpLagSlFswxE">
+                        <div class="set-name" data-page-node-id="R40DUFTb7fKqW8KAUG0f0B">校园导览 v3.37 墨石版 · 锐仔来了</div>
+                        <div class="set-desc" data-i18n="settings.version.desc" data-page-node-id="f6cyskB5r81Q7p4V32Soiu">四川文轩职业学院遂宁校区 · 地图数据仅供参考，以现场指引为准</div>
+                    </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 语言选择弹层（胶囊下拉） -->
+    <div id="langPicker" class="lang-picker hidden" role="dialog" aria-label="选择语言" data-page-node-id="q8fyu89z736eixvINH8kr9">
+        <div class="lang-picker-mask" id="langPickerMask" data-page-node-id="zCGA16ykqnXD2piVghhxm5"></div>
+        <div class="lang-picker-card" data-page-node-id="X2DaR8qAxhlINA3ALJLztQ">
+            <div class="lang-picker-head" data-page-node-id="UObC9HMGX1GdF8PRWlVVdy">
+                <h3 data-i18n="settings.language" data-page-node-id="ARjKboxHFr05FbaWFEJeqS">语言 / Language</h3>
+                <button class="lang-picker-close" id="langPickerClose" aria-label="关闭" data-page-node-id="B1g8BdbGrBT9PypbyRz1W7">✕</button>
+            </div>
+            <div class="lang-picker-list" id="langPickerList" data-page-node-id="H84piDRXafmsxQRzNWyhLK"></div>
+        </div>
+    </div>
+
+    <!-- ============ 页面：隐私与权限（设置二级页） ============ -->
+    <section id="page-permissions" class="app-page" aria-label="隐私与权限" data-page-node-id="JqBvYGM0gHirPvMW79M0in">
+        <header class="ap-header" data-page-node-id="J59lLFqA5Q6OtQZknwp4Ne">
+            <button class="ap-back" data-goto="settings" aria-label="返回设置" data-page-node-id="D7XgrQ7SOHRmgRN2HMrCKw">‹</button>
+            <h2 data-i18n="perm.title" data-page-node-id="iqdbAO3nmy9KPGISy1tAhb">隐私与权限</h2>
+        </header>
+        <div class="settings-scroll" data-page-node-id="NHta6SyfNvn0Ev3mpbiDoJ">
+            <div class="set-group" data-page-node-id="O9gLZwOGBv4URHJRuWA0zb">
+                <div class="set-group-title" data-page-node-id="OLlWsFTMWzRSGhB920HbUK"><iconsax-icon name="shield-security" type="linear" size="17" aria-hidden="true"></iconsax-icon> <span data-i18n="perm.sys" data-page-node-id="DvfGrkHwxU96at7VCYKSgc">系统权限</span></div>
+                <div id="permList" class="perm-list" data-page-node-id="q5DbFdeWDeCy25Sbq8Qfov"></div>
+            </div>
+            <div class="set-group" data-page-node-id="Gtf4ipSEv8MBpelndUdXVv">
+                <div class="set-group-title" data-page-node-id="KsiPt1dkPHlbYQqHhBpuA6"><iconsax-icon name="book" type="linear" size="17" aria-hidden="true"></iconsax-icon> <span data-i18n="perm.note" data-page-node-id="N0UkuImayv1jwK8L1LHX4B">隐私说明</span></div>
+                <div class="set-item set-static" data-page-node-id="s2NdtwbbqsB0TXz1La4Szj">
+                    <div class="set-text" data-page-node-id="JjUCr0Lpe2oWQXaVXphDlV">
+                        <div class="set-desc perm-note-text" data-page-node-id="cPsqq37pqeaZyzYCNdJLQ3">
+                            · 位置信息仅在本机用于定位与导航，不会上传服务器。<br data-page-node-id="FJS1SbaOFmmO6gcVxbynCh">
+                            · 昵称、收藏、浏览历史等个人数据只保存在本机浏览器，清除浏览器数据即删除。<br data-page-node-id="qIm73Z9PAKXw9nRYiekCKi">
+                            · 同学共建的地点数据（新增/修改）会同步到班级共享服务器，不含任何个人信息。<br data-page-node-id="Oo6v9AbcYFgBBffGnYzezE">
+                            · 所有权限都遵循「先引导、后弹窗」：只有在你使用相关功能时才会申请，拒绝后核心功能仍可手动使用。
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ============ 页面：失物招领 ============ -->
+    <!-- ============ 页面：聊天（公共大厅 + 私聊） ============ -->
+    <section id="page-chat" class="app-page" aria-label="聊天" data-page-node-id="iFh4EQDcI5P6JMA0mfHvFQ">
+        <header class="ap-header" data-page-node-id="w0HvVcTeFQJTGPCpEYow17">
+            <button class="ap-back" data-goto="map" aria-label="返回地图" data-page-node-id="p6fA97MrH3DTKC954fxmwQ">‹</button>
+            <h2 id="chatTitle" data-i18n="chat.title" data-page-node-id="omGvyE6qWhCvCGHD7pmsxj">聊天</h2>
+            <button class="lf-new" id="chatNew" aria-label="添加好友" data-i18n="chat.new" data-page-node-id="hjkZ0IVpvao4gb3C2vdvVK">添加好友</button>
+        </header>
+        <div class="chat-body" data-page-node-id="LxKOgTgTavMF3HxXqAvT6v">
+            <!-- 会话列表：大厅 + 最近私聊 -->
+            <div class="chat-rooms" id="chatRooms" data-page-node-id="iHM2xRNmFU36mgoZ2oxeSe"></div>
+        </div>
+    </section>
+
+    <!-- 聊天 · 会话窗口（大厅 / 私聊共用） -->
+    <section id="page-chatroom" class="app-page" aria-label="聊天会话" data-page-node-id="LlJBEsLbUiwqKAM5uZo5PX">
+        <header class="ap-header" data-page-node-id="KAYPANCK8A4SLps80h26uG">
+            <button class="ap-back" id="chatBack" aria-label="返回" data-page-node-id="YQrv1EwOofs8eNMgNVqGpn">‹</button>
+            <h2 id="chatRoomTitle" data-i18n="chat.lobby" data-page-node-id="Nd0TCEe1tp86LGgUXA5QPV">大厅</h2>
+        </header>
+        <div class="chat-room" data-page-node-id="b3w7DFMPGGdcRe2c4mEvkE">
+            <div class="chat-msgs" id="chatMsgs" data-page-node-id="BOABBCoPGp5YfsHIWY0rUy"></div>
+            <div class="chat-inputbar" data-page-node-id="tSpzsbU41LHyaEaZCmPUmc">
+                <input id="chatInput" maxlength="500" placeholder="说点什么…" data-i18n-ph="chat.input.ph" autocomplete="off" data-page-node-id="hvzI8rMI7Do0h6caaVvq6a">
+                <button id="chatSend" class="btn-primary btn-sm" aria-label="发送" data-i18n="chat.send" data-page-node-id="rMwGFTcy7HaiEDxeiabGfK">发送</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 聊天 · 私聊用户选择抽屉 -->
+    <div id="chatUsers" class="lf-sheet hidden" role="dialog" aria-label="添加好友" data-page-node-id="2JU11fwxZnj5kHaaVSgY8F">
+        <div class="lf-sheet-mask" id="chatUsersMask" data-page-node-id="siBzntDUSBUXrqV0zXu86J"></div>
+        <div class="lf-sheet-card" data-page-node-id="FexdLLxzTLvvB0BghHZ4FA">
+            <div class="lf-sheet-grabber" aria-hidden="true" data-page-node-id="lYIluQdpC5apeUwRkpMjDs"></div>
+            <div class="lf-sheet-head" data-page-node-id="4EzmrUnOp3wUgxAvKD1vTG">
+                <h3 data-i18n="chat.new.dm" data-page-node-id="r8PmPr9srZpjyCO0fHVDmP">添加好友</h3>
+                <button class="lf-sheet-close" id="chatUsersClose" aria-label="关闭" data-page-node-id="4xMXZVj05K7nhEClCzympk">✕</button>
+            </div>
+            <div class="chat-user-search"><input id="chatUserSearch" type="search" placeholder="搜索邮箱 / 昵称添加好友" autocomplete="off" data-i18n-ph="chat.search.ph"></div>
+<div class="chat-user-list" id="chatUserList" data-page-node-id="50OBwppk9MVFb8xLj6oALN"></div>
+        </div>
+    </div>
+
+    <!-- 聊天 · 用户资料卡（点头像查看） -->
+    <div id="chatProfile" class="lf-sheet hidden" role="dialog" aria-label="用户资料" data-page-node-id="1R2nm1P4N9spTKJNbLsCLZ">
+        <div class="lf-sheet-mask" id="chatProfileMask" data-page-node-id="bF0xhUWLNNYGR58SN2xu7q"></div>
+        <div class="lf-sheet-card lf-sheet-card-sm" data-page-node-id="GDrgrLCfG81J4Ir9G6vBOP">
+            <div class="lf-sheet-grabber" aria-hidden="true" data-page-node-id="XQfxxB6dacusMIFAz9hKTY"></div>
+            <div class="lf-sheet-head" data-page-node-id="d2nqsN1dMmXUnYYRyklRKE">
+                <h3 data-i18n="chat.profile" data-page-node-id="yeCGVJClCeui8GLFCYzfWn">个人资料</h3>
+                <button class="lf-sheet-close" id="chatProfileClose" aria-label="关闭" data-page-node-id="Q8nr86igHeLrFNJrT9aXGc">✕</button>
+            </div>
+            <div id="chatProfileBody" class="chat-profile-body" data-page-node-id="wEzngxLcLtHCf82lOtVYco"></div>
+        </div>
+    </div>
+
+    <section id="page-lostfound" class="app-page" aria-label="失物招领" data-page-node-id="nTnesIhRDtCGIHFjbJnrYB">
+        <header class="ap-header" data-page-node-id="pLYoQDhnecDDWbirWHCvB6">
+            <button class="ap-back" data-goto="map" aria-label="返回地图" data-page-node-id="DixZ3SnPIArHf4cB2JK1TF">‹</button>
+            <h2 data-i18n="lf.title" data-page-node-id="9hcUKYMlPcvHCXPkAAG1Zz">失物招领</h2>
+            <button class="lf-new" id="lfNew" aria-label="发布新帖" data-i18n="lf.new" data-page-node-id="1ttdT7yFfgQ34FJxBVMmtZ">发布</button>
+        </header>
+        <div class="lf-body" data-page-node-id="DUyBvZmCCYfX9VQQhDkOqZ">
+            <div class="lf-tabs" role="tablist" data-page-node-id="eEKQUuKGH8gGyWEHwqDNZl">
+                <button class="lf-tab active" data-lf="lost" role="tab" data-page-node-id="Cyu8UjT2HiNrxGSZtXCYes"><span data-i18n="lf.lost" data-page-node-id="0d8pRSDfgLkFulOYFF7dXa">寻物</span><span class="lf-count" id="lfLostCount" data-page-node-id="9LqT4eUqtB1Y9FyS0cz4VM">0</span></button>
+                <button class="lf-tab" data-lf="found" role="tab" data-page-node-id="A4j53zRZpCK4orDGWDCRZu"><span data-i18n="lf.found" data-page-node-id="PHRkF24YNowFSFWz3pyT4N">招领</span><span class="lf-count" id="lfFoundCount" data-page-node-id="WF8n4m1wFgAUD61lA6TbZh">0</span></button>
+                <button class="lf-tab" data-lf="mine" role="tab" data-page-node-id="DIaVAtgfVSVZXGlEYonj67"><span data-i18n="lf.mine" data-page-node-id="zciczvCz3LCdFUVeUTd3Bi">我的</span><span class="lf-count" id="lfMineCount" data-page-node-id="sgQv4eULtqTKFyEaDR58fF">0</span></button>
+            </div>
+            <div class="lf-cats" id="lfCats" data-page-node-id="ZV0SPvKmkftjpjQS3tJZ5j"></div>
+            <div class="lf-toggle" data-page-node-id="8vQQNlh94Jgghl8ccGhXbl">
+                <button class="lf-view active" data-lfview="list" data-i18n="lf.list" data-page-node-id="JIfe3D4y2KAutLb4x0ZEc4">列表</button>
+                <button class="lf-view" data-lfview="map" data-i18n="lf.map" data-page-node-id="rFijhWZXc7B6AfPgYU9J17">地图</button>
+            </div>
+            <!-- v3.21：我的二级 tab（进行中 / 已完成），仅在「我的」tab 显示 -->
+            <div class="lf-mine-tabs hidden" id="lfMineTabs" role="tablist" data-page-node-id="3qeeF9z2OExa3O7fx03Yo5">
+                <button class="lf-mine-tab active" data-minestatus="open" role="tab" data-page-node-id="XW4miOLv2VSgWV3gbzT9ou"><span data-i18n="lf.mine.open" data-page-node-id="xXjpuBKfYO5fp8ni7BjQwg">进行中</span><span class="lf-mine-count" data-page-node-id="t43hlgi6eafBrmpjGemy2x">0</span></button>
+                <button class="lf-mine-tab" data-minestatus="done" role="tab" data-page-node-id="x5TRM5wNv9M8VFYlWenw7p"><span data-i18n="lf.mine.done" data-page-node-id="Q8aSEHqYhDtVSH4Xoq2dBG">已完成</span><span class="lf-mine-count" data-page-node-id="j3WsbCYmAN9GX3Gof10bHF">0</span></button>
+            </div>
+            <div class="lf-list" id="lfList" data-page-node-id="NU7iKow5Ts8yqxz0lBhUAt"></div>
+            <div class="lf-mapwrap hidden" id="lfMapWrap" data-page-node-id="BbBta774s6TH1LLe53KzE2">
+                <div id="lfMap" class="lf-map" data-page-node-id="fwMQQ1Sbp0h42ncqrN2CHN"></div>
+                <div class="lf-map-hint" data-i18n="lf.map.hint" data-page-node-id="ScSAM7gSRH3snsTTj7AtLL">点击标点查看详情</div>
+            </div>
+            <div class="lf-empty hidden" id="lfEmpty" data-page-node-id="eGHWGf0fFuzUEwVouTwStG">
+                <div class="lf-empty-ico" data-page-node-id="A17vDKOlcb3MCnLyp8NRnv">📭</div>
+                <p data-i18n="lf.empty" data-page-node-id="kgBDnunOAgeeCP4PqcrAaR">还没有相关帖子</p>
+                <button class="btn-primary btn-sm" id="lfEmptyGo" data-i18n="lf.empty.go" data-page-node-id="2vGke36BImHLq9Esb0XVq1">发布第一帖</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- 失物招领 · 发布表单抽屉 -->
+    <div id="lfSheet" class="lf-sheet hidden" role="dialog" aria-label="发布失物招领" data-page-node-id="j8HaaaWmL0H7EIF40xjdPb">
+        <div class="lf-sheet-mask" id="lfSheetMask" data-page-node-id="c5z4g81f8uWMQB8MkzftRL"></div>
+        <div class="lf-sheet-card" data-page-node-id="t88FQCP85fwvpID4JfjiBm">
+            <div class="lf-sheet-grabber" aria-hidden="true" data-page-node-id="b2vCpj1IkX8Mm32f205mSX"></div>
+            <div class="lf-sheet-head" data-page-node-id="DCF4BdjSZNh2Wk7m8Ob0Jq">
+                <h3 id="lfSheetTitle" data-i18n="lf.sheet.title" data-page-node-id="TNXh7RWji3d4z8GPOlh7Oz">发布失物招领</h3>
+                <button class="lf-sheet-close" id="lfSheetClose" aria-label="关闭" data-page-node-id="CYbAkHPoeLV5L9wgaAPJML">✕</button>
+            </div>
+            <div class="lf-form" data-page-node-id="ExWSkNn5DRF6f9zKuRKksC">
+                <div class="lf-type-switch" id="lfTypeSwitch" data-page-node-id="PuBb140SLRzcPcHp2NCzn6">
+                    <button class="active" data-type="lost" data-i18n="lf.type.lost" data-page-node-id="fDLpt58gL7ArRrQGFdFjGt">我丢了东西</button>
+                    <button data-type="found" data-i18n="lf.type.found" data-page-node-id="sxdan72V6EQh7wUwq9WtBU">我捡到东西</button>
+                </div>
+                <div class="lf-field" data-page-node-id="LbKr02Ltrq3LhLWCG2Wl4M">
+                    <label data-page-node-id="MFXDb5MzRMHX1Cnl1v89It"><span data-i18n="lf.field.title" data-page-node-id="isPLthP7rFQLkweXoojwWW">物品名称</span> <i data-page-node-id="HWJukB6W47iWfQEmluvD8Q">*</i></label>
+                    <input id="lfTitle" maxlength="30" placeholder="例如：蓝色保温杯" data-page-node-id="gsppUnIFrZV0mE9YpQEA9W">
+                </div>
+                <div class="lf-field" data-page-node-id="0rroN1hLMqda968XKusb49">
+                    <label data-page-node-id="CXWrAoww0Un4GfFN4GnNCn"><span data-i18n="lf.field.cat" data-page-node-id="HHMMgPW0tMP0dyq1Wj78k0">分类</span> <i data-page-node-id="TAu9EKXmUBZqsb0X0hCVQW">*</i></label>
+                    <div class="lf-cats-select" id="lfCatsSelect" data-page-node-id="63SkIrf2hBsAqfgk58HaY3"></div>
+                </div>
+                <div class="lf-field" data-page-node-id="sfhneL7Vz1bF3SWV3wNpQW">
+                    <label data-page-node-id="6gVcZ4AbECx6i8e7zNJ27t"><span data-i18n="lf.field.loc" data-page-node-id="1dtcpeGkbqMpJcfVnYjim5">位置</span> <i data-page-node-id="0gBXDiYUyLP8ivIQ9V90PK">*</i>（点地图选点）</label>
+                    <button class="lf-locpick" id="lfLocPick" data-page-node-id="9hH7pmp3P1sYhNnSeahAhs">
+                        <span id="lfLocText" data-page-node-id="QT5YR4gqDbiZwebHN5I046">点击在地图上选择位置</span>
+                        <span class="lf-loc-arrow" data-page-node-id="uyiaAHtpuFxXcyuuEskp7k">›</span>
+                    </button>
+                </div>
+                <div class="lf-field" data-page-node-id="uAtGADJpnh7mGSQwQHRyF1">
+                    <label data-i18n="lf.field.time" data-page-node-id="LCcFW0zwY0u1bBW3ywHIl8">时间</label>
+                    <input id="lfTimeText" maxlength="30" placeholder="例如：今天中午 12:30 左右" data-page-node-id="AfDjP97ks5jQnv86fDB1D4">
+                </div>
+                <div class="lf-field" data-page-node-id="kgY1SY4mTo0HR5RF7r1TwC">
+                    <label data-i18n="lf.field.desc" data-page-node-id="rl3fTo1r0p81QHvjEhczUs">详细描述</label>
+                    <textarea id="lfDesc" maxlength="200" rows="2" placeholder="颜色、品牌、内部特征等，帮助失主/拾主确认"></textarea>
+                </div>
+                <div class="lf-field" data-page-node-id="wTCJETvtKaO2H8dGslHLnm">
+                    <label data-page-node-id="JCWCcdYQ9i9a9uPrcNCjOs"><span data-i18n="lf.field.contact" data-page-node-id="xP3RvYH8HYd2ePDWo1yjZ5">联系方式</span></label>
+                    <input id="lfContact" maxlength="60" placeholder="邮箱 / 手机号 / 微信号" data-page-node-id="DDo3PgY6omXeRts9f6Osi9">
+                    <p class="lf-field-hint" data-i18n="lf.field.contact.hint" data-page-node-id="4YLyPO2xQ1GEG0vovrTroN">认领后双方互见，可填手机/微信</p>
+                </div>
+                <div class="lf-field" data-page-node-id="IDQtZUQuX3nsB5D313pcEG">
+                    <label data-page-node-id="FpsO68Tplqf2GyLSBNLs5i"><span data-i18n="lf.field.proofq" data-page-node-id="dvRkz1mpDs89sxeDjjiMed">验证问题</span> <i data-page-node-id="H8ySNkkgsllLFJTPkl66s7">*</i></label>
+                    <input id="lfProofQ" maxlength="60" placeholder="例如：卡面有什么贴纸？" data-page-node-id="gVtK0jg3eASxKVFUV7KoA0">
+                </div>
+                <div class="lf-field" data-page-node-id="y7v10ZZ8KHucgpO74iMozy">
+                    <label data-page-node-id="iL4AHvE0FXlSNcoej72CEk"><span data-i18n="lf.field.proofa" data-page-node-id="rM3edh3prKGI0cLZklGFQy">验证答案</span> <i data-page-node-id="ei62Z6sy31dCrDpTcXoPxV">*</i></label>
+                    <input id="lfProofA" maxlength="40" placeholder="认领人需答对此问题" data-page-node-id="LFTCswc23tHvua5GNFMB5e">
+                    <p class="lf-field-hint" data-page-node-id="czEUtcKraTunK4H5gHg7la">用于防止冒领，仅用于验证，不会公开显示</p>
+                </div>
+                <button class="btn-primary lf-submit" id="lfSubmit" data-i18n="lf.submit" data-page-node-id="1D8Ha8lzjY4LcsykK0BRFK">发布</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 失物招领 · 详情抽屉 -->
+    <div id="lfDetail" class="lf-detail hidden" role="dialog" aria-label="帖子详情" data-page-node-id="WoEDq08ikWYjZsdGxQKSwe">
+        <div class="lf-detail-mask" id="lfDetailMask" data-page-node-id="SvCtVubbuNbiqIp6XB4VC2"></div>
+        <div class="lf-detail-card" id="lfDetailCard" data-page-node-id="B8dRaCtGkJ6rsaY2ji7uyJ"></div>
+    </div>
+
+    <!-- 失物招领 · 验证问答弹窗（内嵌，替代原生 prompt） -->
+    <div id="lfClaim" class="lf-sheet hidden" role="dialog" aria-label="认领验证" data-page-node-id="Ya9bZRnu8dubG29PbLMOnK">
+        <div class="lf-sheet-mask" id="lfClaimMask" data-page-node-id="iWTtKFEWPYrIdNALg3rHco"></div>
+        <div class="lf-sheet-card lf-claim-card" data-page-node-id="p6dkUgZwrttYJ1qnQdks7F">
+            <div class="lf-sheet-grabber" aria-hidden="true" data-page-node-id="Gj3mGkP3CGuXMIDE64osme"></div>
+            <div class="lf-sheet-head" data-page-node-id="z15KWKlDnqcabHpa5IYrf2">
+                <h3 data-i18n="lf.claim.title" data-page-node-id="h91xjiCpNeA8GBpR8viUNG">认领验证</h3>
+                <button class="lf-sheet-close" id="lfClaimClose" aria-label="关闭" data-page-node-id="nBiakUzrG5sYTkAOBHYSI1">✕</button>
+            </div>
+            <p class="lf-claim-q" id="lfClaimQ" data-page-node-id="VkAcLmADeMg7GGI421HJSc"></p>
+            <p class="lf-claim-hint" data-i18n="lf.claim.hint" data-page-node-id="LhOayjFW3Z9PJwMDfQS5b8">答对答案后立即解锁对方联系方式</p>
+            <div class="lf-field" data-page-node-id="837XEzbcvn1B4wT9vCaePP">
+                <input id="lfClaimA" maxlength="40" placeholder="请输入验证答案" autocomplete="off" data-page-node-id="f5u2gZGXqtIYFmhyWTs04u">
+            </div>
+            <div class="auth-msg lf-claim-err" id="lfClaimErr" data-page-node-id="0STZLcMeI6By3VVQP3qFGY"></div>
+            <button class="btn-primary lf-submit" id="lfClaimSubmit" data-i18n="lf.claim.submit" data-page-node-id="TzJZTbCLpPfxwiuW1hwQUL">提交认领</button>
+        </div>
+    </div>
+
+    <!-- 失物招领 · 撤回确认抽屉（统一应用内二次确认，替换原生 confirm） -->
+    <div id="lfDeleteSheet" class="lf-sheet hidden" role="dialog" aria-label="撤回帖子确认" data-page-node-id="6GZ93M3s8joJO7qvDrn3pQ">
+        <div class="lf-sheet-mask" id="lfDeleteSheetMask" data-page-node-id="ulALWF8OahPdsgesLutzvL"></div>
+        <div class="lf-sheet-card lf-delete-card" data-page-node-id="BnvFoJpTPgM7DbPCS5dMVM">
+            <div class="lf-sheet-grabber" aria-hidden="true" data-page-node-id="xMusvkLzEuKXWHnEogoKJQ"></div>
+            <div class="lf-sheet-head" data-page-node-id="tvTCDFKNMUAL6He2s7nyaw">
+                <h3 data-i18n="lf.delete.title" data-page-node-id="ieWZBpq56TDRRdVAAPxo3v">撤回帖子？</h3>
+                <button class="lf-sheet-close" id="lfDeleteSheetClose" aria-label="关闭" data-page-node-id="35p5K4CQJYDqydOwlwH7Bd">✕</button>
+            </div>
+            <div class="lf-delete-body" data-page-node-id="bsdOxEpUKA7oTWdFLBRZQl">
+                <div class="lf-delete-ico" data-page-node-id="5gVBXjVloCf9kS7FA8YHYw">🗑</div>
+                <p class="lf-delete-msg" id="lfDeleteMsg" data-page-node-id="xvaPbGENmLcvGlCyTzHmhP">撤回后这条帖子将不可恢复，列表将立即移除。</p>
+                <div class="lf-delete-acts" data-page-node-id="AJgIu296avNgFFsgIr4r06">
+                    <button class="btn-ghost btn-sm" id="lfDeleteCancel" data-i18n="lf.delete.cancel" data-page-node-id="RhtmlQPXHvICAVk0IONDny">取消</button>
+                    <button class="btn-primary btn-sm lf-delete-confirm" id="lfDeleteConfirm" data-i18n="lf.delete.confirm" data-page-node-id="MJbzlYJ0BO4yzNGSD8s5MH">确认撤回</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 登录 / 注册抽屉（v3.12） ============ -->
+    <div id="authBackdrop" class="auth-backdrop hidden" data-page-node-id="OIG6YnlERFw1X9jd6lzGFp"></div>
+    <div id="authSheet" class="auth-sheet hidden" role="dialog" aria-label="登录或注册" data-page-node-id="QQlElLINXX5lGCFCpYcxpy">
+        <div class="auth-grabber" aria-hidden="true" data-page-node-id="UU3gkTZ7CGJPlPEKAfmXhu"></div>
+        <button id="authClose" class="auth-close" aria-label="关闭" data-page-node-id="AGh13xuaE8ESy2Jf7GkQNd">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" data-page-node-id="VbKUc56PSyG1SxlDpiMu5l"><path d="M6 6l12 12M18 6L6 18" data-page-node-id="A5mUEa4pvAAi7Q5jzOByHC"/></svg>
+        </button>
+        <div id="authReason" class="auth-reason hidden" data-page-node-id="oOF2YVEJAl0mZCkXEkBfHq"></div>
+
+        <!-- 入口菜单 -->
+        <div id="authViewMenu" class="auth-view" data-page-node-id="kXGkplbUGz38wV2vLW4JIU">
+            <div class="auth-title" data-i18n="auth.login.register" data-page-node-id="mEgSjRp261D265hkMyKYJi">登录 / 注册</div>
+            <div class="auth-sub" data-i18n="auth.login.sub" data-page-node-id="SG8ABrPDXlsOTtIwMSTHzK">登录后可发布地标、参与班级共建；收藏与设置仍只保存在本机</div>
+            <button id="authGoRegister" class="auth-btn primary" data-i18n="auth.register.email" data-page-node-id="nHqnesS5NXZVsK3ilvq26E">使用邮箱注册</button>
+            <button id="authGoLogin" class="auth-btn ghost" data-i18n="auth.login.existing" data-page-node-id="cNAzIehcraKdcbAUwMMht1">已有账号登录</button>
+            <button id="authBrowseGuest" class="auth-link center" data-i18n="auth.browse.guest" data-page-node-id="tjvWKGiI8mto5WgnhV7iTy">先逛逛，稍后登录</button>
+        </div>
+
+        <!-- 登录 -->
+        <div id="authViewLogin" class="auth-view hidden" data-page-node-id="G4mHA3SOQIQNXrEOV2FBHE">
+            <div class="auth-title" data-i18n="auth.email.login" data-page-node-id="zV1ByH1yND8XN5FiaGDTAg">邮箱登录</div>
+            <div class="auth-field" data-page-node-id="VRHmUVucKpQDiBobyobETs">
+                <input id="loginEmail" type="email" placeholder="邮箱地址" data-i18n-ph="auth.email.ph" autocomplete="email" inputmode="email" data-page-node-id="ypP0Ke4IXGFGDqq3i0aQiL">
+            </div>
+            <div class="auth-field" data-page-node-id="iiGVDvY4GfXA5s74W4p01U">
+                <input id="loginPw" type="password" placeholder="密码" data-i18n-ph="auth.pw.ph" autocomplete="current-password" data-page-node-id="cmGeIMezEsKWW8JpTGeZaG">
+                <button type="button" class="pw-eye" data-for="loginPw" aria-label="显示密码" data-page-node-id="I2zua2CFepPblzCYMUi121">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-page-node-id="po73Y3x3FG0eebMoaLdVWO"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" data-page-node-id="Yn8Zvvbp2ciymFheiDUGEJ"/><circle cx="12" cy="12" r="3" data-page-node-id="JWyJUR5IG4cD588ENekKmt"/></svg>
+                </button>
+            </div>
+            <div class="auth-row" data-page-node-id="wVeMRhnCWr7xJ48r7xJUIM">
+                <button type="button" id="loginRemember" class="auth-switch on" role="switch" aria-checked="true" aria-label="记住我" data-page-node-id="NYTplPlcZeapSCeAQJKXop"></button>
+                <span class="auth-row-label" data-i18n="auth.remember" data-page-node-id="nuAiJG7WXfA9VGy1troYZm">记住我</span>
+                <button type="button" id="authGoReset" class="auth-link" data-i18n="auth.forgot" data-page-node-id="B7RzSKBAzq2RlbBkrRFZJJ">忘记密码？</button>
+            </div>
+            <button id="loginSubmit" class="auth-btn primary" data-i18n="auth.login.btn" data-page-node-id="o2g0GUWo6f6QItCK3NiA5t">登录</button>
+            <button id="loginGoRegister" class="auth-link center" data-i18n="auth.no.account" data-page-node-id="BhNUpXOyOjOYEfKLvPQyDF">没有账号？去注册</button>
+        </div>
+
+        <!-- 注册：3 步 -->
+        <div id="authViewRegister" class="auth-view hidden" data-page-node-id="CQOddH7JWzy1VYqZHeKBRh">
+            <div class="auth-title" data-i18n="auth.register.title" data-page-node-id="nIw7BRkGERrYijjrkSG2Dg">注册账号</div>
+            <div id="regDots" class="auth-dots" aria-hidden="true" data-page-node-id="JkFXAQsh4rBkI1weC7lzmQ"><i class="on" data-page-node-id="g80wzWYmETO8CxNvK5jpOK"></i><i data-page-node-id="RFgcghdsdmJogs1EorjEbT"></i><i data-page-node-id="xXmAO7HjZFe0ROe8oO15jn"></i></div>
+
+            <div id="regStep1" data-page-node-id="YERjtIMnAWko542T8hSzY4">
+                <div class="auth-field" data-page-node-id="PNiXIaL4cXtmdthzTMOj9t">
+                    <input id="regEmail" type="email" placeholder="邮箱地址" data-i18n-ph="auth.email.ph" autocomplete="email" inputmode="email" data-page-node-id="pdHOm5v9VGRoZw13yU1uts">
+                </div>
+                <div class="auth-field" data-page-node-id="CNAE9ZwzDrxPMnnNm1HcHG">
+                    <input id="regPw" type="password" placeholder="密码（至少 8 位）" data-i18n-ph="auth.pw.min" autocomplete="new-password" data-page-node-id="CBemRlM2gTI2lJ6ajNF2HT">
+                    <button type="button" class="pw-eye" data-for="regPw" aria-label="显示密码" data-page-node-id="HYPaU5LcnKyHXbmCCyeKeE">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-page-node-id="DpyosaoKmaRlStLiuIbGBc"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" data-page-node-id="dMFSMUhf6Zoc2nUGglU10I"/><circle cx="12" cy="12" r="3" data-page-node-id="jux02qqPpUSWFDL0TMqCFg"/></svg>
+                    </button>
+                </div>
+                <div class="auth-field" data-page-node-id="4SGQ1HcJBeimOFqkkUmmF6">
+                    <input id="regPw2" type="password" placeholder="确认密码" data-i18n-ph="auth.pw.confirm" autocomplete="new-password" data-page-node-id="cLbDmDYff8d9FLAuKxpVFE">
+                </div>
+                <button id="regNext1" class="auth-btn primary" disabled data-i18n="auth.next" data-page-node-id="J8bGMTyaOmgtcPLJLK8mPv">下一步</button>
+                <button id="regGoLogin" class="auth-link center hidden" data-i18n="auth.registered" data-page-node-id="odATQBZ4efpZalXPYULykH">该邮箱已注册？去登录</button>
+            </div>
+
+            <div id="regStep2" class="hidden" data-page-node-id="K3WSUk6Z2JocRnnDuX7gYT">
+                <div class="auth-sub" data-i18n="auth.code.hint" data-page-node-id="1Pqw3EeZVMjecq1VMymMXY">验证码已生成（演示模式直接显示在下方）</div>
+                <div id="regCodeBoxes" class="code-boxes" data-page-node-id="7hY4Pu5xc3op7Kjxq35Ptp">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第1位" data-page-node-id="Jf5NEgycfEGfFdE9sMGNuR">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第2位" data-page-node-id="HqnbxYxtcAIKlPmmeuup4j">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第3位" data-page-node-id="U0nL7ORhuAFp5uzczak7EM">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第4位" data-page-node-id="ejitKmXQCPfFZjiWoXvxRq">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第5位" data-page-node-id="O1jSDlMw2xkLf1LEEbuClE">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第6位" data-page-node-id="uLCCFTZjAXnnPwUUiB5qjf">
+                </div>
+                <div id="regDemoHint" class="auth-demo hidden" data-page-node-id="XFiWHb9eMPT1n9AwfAywUa"></div>
+                <button id="regVerify" class="auth-btn primary" data-i18n="auth.verify" data-page-node-id="vssqAYcKMEs3llsHLTWHpK">验证并继续</button>
+                <button id="regResend" class="auth-link center" data-i18n="auth.resend" data-page-node-id="usAVGLCSqTJ8B6wgxGjflI">重新发送验证码</button>
+            </div>
+
+            <div id="regStep3" class="hidden" data-page-node-id="9MIQWkdl9YDXyHRpFyLDQx">
+                <div class="auth-sub" data-i18n="auth.profile.hint" data-page-node-id="i2hE77UpEKlKHSwCZ79YRj">完善资料（年级、学院、专业为必填，昵称可用网名）</div>
+                <div id="regAvatarGrid" class="av-grid" data-page-node-id="dsi3ss0XmHOHKlMXtEcCQN"></div>
+                <div class="auth-field" data-page-node-id="k5EbNIzxeqHQbOpXaNNohO">
+                    <input id="regNick" type="text" placeholder="昵称（2~12 个字符，可用网名）" data-i18n-ph="auth.nick.ph" maxlength="12" data-page-node-id="otOWIPD5TTG5QGWZDEf84X">
+                </div>
+                <div class="auth-field auth-field-static" data-page-node-id="2f9xaatDb4FkpagNJ8AzCW">
+                    <span class="auth-static-label" data-i18n="auth.school" data-page-node-id="BvjeVR8f7wbxcKH8Y1Iguk">学校</span>
+                    <span class="auth-static-val" data-i18n="school.name" data-page-node-id="8lWP2CHWkmHiE2Fn77cKoY">四川文轩职业学院</span>
+                </div>
+                <div class="auth-field" data-page-node-id="4o8JWy6xURiZPOKSmDBY34">
+                    <select id="regGrade" class="auth-select" aria-label="年级" data-page-node-id="03C2n62MBD7N8eeyNxrm1W">
+                        <option value="" data-i18n="auth.grade.placeholder" data-page-node-id="VQmReYF2SsaykNqxfo7SeQ">请选择年级</option>
+                    </select>
+                </div>
+                <div class="auth-field" data-page-node-id="Fp4L93F3CpM1ARVLXLmy8m">
+                    <select id="regCollege" class="auth-select" aria-label="学院" data-page-node-id="h0al91ewVEz7FDVV3wUFcv">
+                        <option value="" data-i18n="auth.college.placeholder" data-page-node-id="9tgYgevrZOIMnwcJLm7iRJ">请选择学院</option>
+                    </select>
+                </div>
+                <div class="auth-field" data-page-node-id="iGQNlGoS8EnRy25DifPyO0">
+                    <select id="regMajor" class="auth-select" aria-label="专业" data-page-node-id="R3MZKpxjlmnc3qoTWwSb1v">
+                        <option value="" data-i18n="auth.major.placeholder" data-page-node-id="sWBVosf8vb92yYJXFw7cm8">请先选择学院</option>
+                    </select>
+                </div>
+                <div class="auth-field" data-page-node-id="pRGC9NNPhwJH5K7BrLHmkv">
+                    <input id="regSid" type="text" placeholder="学号（选填）" data-i18n-ph="auth.sid.ph" maxlength="20" data-page-node-id="QZOJbkuptn8ZRMt5WWJwY9">
+                </div>
+                <button id="regDone" class="auth-btn primary" data-i18n="auth.done" data-page-node-id="ugJyHK8bHpAi7EQzpkzZSV">完成注册</button>
+            </div>
+        </div>
+
+        <!-- 忘记密码 -->
+        <div id="authViewReset" class="auth-view hidden" data-page-node-id="z56wAKJBGIeF6C7MDSpnIl">
+            <div class="auth-title" data-i18n="auth.reset.title" data-page-node-id="2ZOMJbiPZ1f7mHfw5Z2yrF">重置密码</div>
+            <div class="auth-field" data-page-node-id="1G5rtaKgPZ9Gf58FPNnEWv">
+                <input id="rstEmail" type="email" placeholder="注册时使用的邮箱" data-i18n-ph="auth.reset.email" inputmode="email" data-page-node-id="plyr2AgBcKCX9OrlLjPT5L">
+            </div>
+            <button id="rstSend" class="auth-btn ghost" data-i18n="auth.reset.send" data-page-node-id="xf1Ec4iuNE7M7zxtnZ9H1M">发送验证码</button>
+            <div id="rstDemoHint" class="auth-demo hidden" data-page-node-id="BPGPnCsK0B083GvtuEMyHk"></div>
+            <div id="rstStep2" class="hidden" data-page-node-id="0hJGrFUyV9vEn5imX5TqTF">
+                <div id="rstCodeBoxes" class="code-boxes" data-page-node-id="eDNN2iDTscs51D7W5j4ZLa">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第1位" data-page-node-id="k8iesitVhX9VIBnCCPbZjp">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第2位" data-page-node-id="ySkeUv0SjS0inxzDve9n4l">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第3位" data-page-node-id="2yIqwG8YukZr4FHWDweRTc">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第4位" data-page-node-id="stNnInXsguGvy05hxQNm8m">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第5位" data-page-node-id="B3FmzBQFYD56nuv2sMDo8T">
+                    <input class="code-box" inputmode="numeric" maxlength="1" aria-label="验证码第6位" data-page-node-id="PMhJdRAIErVhlmXFcycPdL">
+                </div>
+                <div class="auth-field" data-page-node-id="dUHoBUNsFbSlZDsNDCGnjy">
+                    <input id="rstNewPw" type="password" placeholder="新密码（至少 8 位）" data-i18n-ph="auth.reset.newpw" autocomplete="new-password" data-page-node-id="1c8zbHoCVjEeZFnHYPPSbC">
+                    <button type="button" class="pw-eye" data-for="rstNewPw" aria-label="显示密码" data-page-node-id="ACwhDLepihmzjpBJ35BkPi">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-page-node-id="pCaP2dEV53vNXdJWzpdQoZ"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" data-page-node-id="GqqKdY5BKcMJbyUCLP6We2"/><circle cx="12" cy="12" r="3" data-page-node-id="Dk6ZFFVooA8Qx1Wy8C9fVc"/></svg>
+                    </button>
+                </div>
+                <button id="rstDone" class="auth-btn primary" data-i18n="auth.reset.done" data-page-node-id="fpEVt4dwot1C2SMhgF8Pal">重置并登录</button>
+            </div>
+        </div>
+
+        <!-- 编辑资料 -->
+        <div id="authViewProfile" class="auth-view hidden" data-page-node-id="iqERv4Lq5bC7t1hg3mWaAP">
+            <div class="auth-title" data-i18n="auth.profile.edit" data-page-node-id="iPQXLO5dFMDFqAahHvNI99">编辑资料</div>
+            <div id="pfAvatarGrid" class="av-grid" data-page-node-id="31pGgadK5rv4eEFxKSasz4"></div>
+            <div class="auth-field" data-page-node-id="QICW80kK3JugXhfkOcy0gR">
+                <input id="pfNick" type="text" placeholder="昵称（2~12 个字符，可用网名）" data-i18n-ph="auth.nick.ph" maxlength="12" data-page-node-id="RfL2j5aJ7xMsU4RexPAfXT">
+            </div>
+            <div class="auth-field auth-field-static" data-page-node-id="EQbG3oItWehW78yvtBHSqP">
+                <span class="auth-static-label" data-i18n="auth.school" data-page-node-id="JMsc2wRf8Vul303uDBdYco">学校</span>
+                <span class="auth-static-val" data-i18n="school.name" data-page-node-id="AGQXt7iQGF7sDEMvW4v4s2">四川文轩职业学院</span>
+            </div>
+            <div class="auth-field" data-page-node-id="7KtHFgHt7Jf11E7CdqQnLq">
+                <select id="pfGrade" class="auth-select" aria-label="年级" data-page-node-id="rAz3sDe1LCkKxttqis1VOE">
+                    <option value="" data-i18n="auth.grade.placeholder" data-page-node-id="ZhzQpVeIkEfqVzaSUEsqVb">请选择年级</option>
+                </select>
+            </div>
+            <div class="auth-field" data-page-node-id="FaVIqJkymjSuvaVbBTqJS4">
+                <select id="pfCollege" class="auth-select" aria-label="学院" data-page-node-id="5NcLHWrjyz4tisxDrcQLCv">
+                    <option value="" data-i18n="auth.college.placeholder" data-page-node-id="69Pb9gtFyZ7wm8KwJC5vG0">请选择学院</option>
+                </select>
+            </div>
+            <div class="auth-field" data-page-node-id="YK5JcT03tqPTpl5ho3ZsGx">
+                <select id="pfMajor" class="auth-select" aria-label="专业" data-page-node-id="DXitXH9FGtfRsnDqu2uP3X">
+                    <option value="" data-i18n="auth.major.placeholder" data-page-node-id="XvB3NULBX2CseaOxEhIXwz">请先选择学院</option>
+                </select>
+            </div>
+            <div class="auth-field" data-page-node-id="mCJgGlwJ4ZazLoBXsBG0Hm">
+                <input id="pfSid" type="text" placeholder="学号（选填）" data-i18n-ph="auth.sid.ph" maxlength="20" data-page-node-id="FaCzoI2hEhytjdO90GUeNy">
+            </div>
+            <button id="pfSave" class="auth-btn primary" data-i18n="auth.save" data-page-node-id="KRUtXgBsBhBKkAnmCfzeCV">保存</button>
+        </div>
+    </div>
+
+    <!-- 头像上传（隐藏） -->
+    <input id="avatarFile" type="file" accept="image/*" class="hidden" aria-hidden="true" data-page-node-id="U3uuW9N0FdofG0KtGoCbJL">
+
+    <!-- 注册成功欢迎对话框 -->
+    <div id="authWelcome" class="auth-welcome hidden" role="dialog" aria-label="欢迎" data-page-node-id="nzzTlGvv1HnP9wIqTUjY1S">
+        <div class="welcome-card" data-page-node-id="2vxrFiQzHRmkHgSGdpsge1">
+            <div class="welcome-icon" data-page-node-id="gv5qwszn84bfWh8ERZwBgD">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" data-page-node-id="ZyF51jPBpqgvj8qoFeQ1Xl"><path d="M22 10L12 5 2 10l10 5 10-5z" data-page-node-id="h4FHFgDkjN4pVNbBF1VmVe"/><path d="M6 12v5c0 1.66 2.69 3 6 3s6-1.34 6-3v-5" data-page-node-id="HRh2eJsS9tRE19UyuRjwkN"/><path d="M22 10v6" data-page-node-id="GOhCKFkfcDCyXECOML41Zn"/></svg>
+            </div>
+            <div id="welcomeText" class="welcome-text" data-i18n="auth.welcome" data-page-node-id="YcrG2heVyaeluJMRasiSwX">欢迎加入文轩校园导视</div>
+            <button id="welcomeStart" class="auth-btn primary" data-i18n="auth.start" data-page-node-id="2OkppSvOAbpGeb2oEtxTDi">开始使用</button>
+        </div>
+    </div>
+
+    <!-- ============ 底部 Tab 栏（手机 · 液态玻璃胶囊） ============ -->
+    <nav id="tabbar" aria-label="主导航" data-page-node-id="3hpmijbe2zlKTLMHmM8gpP">
+        <button class="tab active" data-tab="map" aria-label="地图" data-page-node-id="Dfpw5DzbkGmHIWhAqXM4rt">
+            <svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="NvL5K0fVnAWV6O7DFVGzhD"><path d="M9 4 3.8 6.1a1 1 0 0 0-.8 1v11.4a1 1 0 0 0 1.4.9L9 17.5l6 2.4 5.2-2.1a1 1 0 0 0 .8-1V5.4a1 1 0 0 0-1.4-.9L15 6.5l-6-2.5Z" data-page-node-id="xyeblbVKGbQopEeLIafxHt"/><path d="M9 4v13.5M15 6.5V20" data-page-node-id="kkyMoSPYgOHamS2JEApoT5"/></svg>
+            <span class="tab-label" data-i18n="tab.map" data-page-node-id="BDNpNK9MTllOL80Wq5bAPa">地图</span>
+        </button>
+        <button class="tab" data-tab="list" aria-label="地点列表" data-page-node-id="ycgq9rMGH7N1aSFhY0X1cm">
+            <svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="YscnaCzpWcpBWkFYGOsiYv"><path d="M4 6h.01M4 12h.01M4 18h.01M9 6h11M9 12h11M9 18h11" data-page-node-id="Jz4CRcNBGOqiZnBXVZp3kW"/></svg>
+            <span class="tab-label" data-i18n="tab.places" data-page-node-id="p7faTp5Y7V1BKjYLRWFpGy">地点</span>
+        </button>
+        <button class="tab" data-tab="lostfound" aria-label="失物招领" data-page-node-id="ZBhFNqYDh1RN8s5jpV5YfM">
+            <svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="rhtw4ZPxZkBfivPDYGdJGN"><path d="M12 2v3M12 19v3M2 12h3M19 12h3" data-page-node-id="ypHRg6OhXsLKykJzSiFFTe"/><circle cx="12" cy="12" r="4" data-page-node-id="FCz64zT2fEbBnosMOBkCSC"/></svg>
+            <span class="tab-label" data-i18n="tab.lf" data-page-node-id="EbwTOia4blzpY8aoFAhV7q">招领</span>
+        </button>
+        <button class="tab" data-tab="chat" aria-label="聊天" data-page-node-id="UonTfsf3YoO7zXVPaPhwQb">
+            <svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="9LOhSBvRVEgD8CmM24KrPJ"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2 1.5-4A8 8 0 1 1 21 12Z" data-page-node-id="JAAYRWQujFn1nYYaLJWoYl"/></svg>
+            <span class="tab-label" data-i18n="tab.chat" data-page-node-id="RWGRW56J3hqqvLSwo3c7UX">聊天</span>
+            <i class="tab-badge hidden" id="chatBadge" aria-hidden="true" data-page-node-id="Zu5KtBd6lPHN3BiBWAjuR4"></i>
+        </button>
+        <button class="tab" data-tab="profile" aria-label="个人中心" data-page-node-id="8yI9wZZAyK4QmwC4WVRV09">
+            <svg class="tab-ico" viewBox="0 0 24 24" aria-hidden="true" data-page-node-id="4L62GLGVK4ExkHzIWCNKsV"><circle cx="12" cy="8" r="3.6" data-page-node-id="73idueDtOQE7K6IcMj73U3"/><path d="M4.5 20c1.4-3.4 4.1-5.2 7.5-5.2s6.1 1.8 7.5 5.2" data-page-node-id="7GLOPwzisnwCmaDCyxSfxD"/></svg>
+            <span class="tab-label" data-i18n="tab.me" data-page-node-id="soKjZT3la53keABPUlnkJY">我的</span>
+        </button>
+    </nav>
+
+    <!-- ============ 建筑信息弹窗 ============ -->
+    <div id="info-modal" class="modal hidden" data-page-node-id="zTnjN50fCKZAbRBCR3CiKT">
+        <div class="modal-content" data-page-node-id="cP21oD3yFFCJNAqRFiFL2N">
+            <button class="modal-close" onclick="closeInfoModal()" aria-label="关闭建筑详情" data-page-node-id="ODnM12AYOIw3aiJShVICwA">✕</button>
+            <div id="info-content" data-page-node-id="zcif1yWxDfSdfsImr8zYpw"></div>
+        </div>
+    </div>
+
+    <!-- v3.21：地点「数据报错」反馈 bottom-sheet -->
+    <div id="poiFeedbackSheet" class="lf-sheet hidden" role="dialog" aria-label="数据报错" data-page-node-id="HF93mONtNsPG9EySwz5R2p">
+        <div class="lf-sheet-mask" id="poiFeedbackMask" data-page-node-id="Q3i7L7RA25Sn37aGHMXhy4"></div>
+        <div class="lf-sheet-card" data-page-node-id="9IROalZIZRrIUOlX3hPe1w">
+            <div class="lf-sheet-grabber" aria-hidden="true" data-page-node-id="INDBx03A2fdFVfOoaMxOwW"></div>
+            <div class="lf-sheet-head" data-page-node-id="VVmiE2ZJkBBUjpgzZqoclq">
+                <h3 data-i18n="poi.feedback.title" data-page-node-id="HFjWX0jeCVnr7MCvWyFxNX">数据报错</h3>
+                <button class="lf-sheet-close" id="poiFeedbackClose" aria-label="关闭" data-page-node-id="xa7w2V0i0rPWNoWyiMOEtJ">✕</button>
+            </div>
+            <div class="poi-fb-form" data-page-node-id="HOnrASTUm9Kjh5g5jDvqCJ">
+                <div class="poi-fb-poi" id="poiFeedbackPoi" data-page-node-id="FUgvBgFnFbkWaMIhWpsWGj"></div>
+                <div class="poi-fb-types" id="poiFeedbackTypes" data-page-node-id="5FPAhq9APdVJyDLMqaREIg">
+                    <button class="poi-fb-type" data-type="closed" data-page-node-id="TZU7fUFqQPsqUXTKC8TQFo">⛔ <span data-i18n="poi.feedback.type.closed" data-page-node-id="FFVe7xTgbeJCK2Z7u6B8YZ">地点关闭</span></button>
+                    <button class="poi-fb-type" data-type="coords" data-page-node-id="XOMeqMgyLdl1F5e0kCglH0">📍 <span data-i18n="poi.feedback.type.coords" data-page-node-id="aJUK4rnG6UpNeH8vOYtRNk">坐标错误</span></button>
+                    <button class="poi-fb-type" data-type="info" data-page-node-id="FB824TTl0dOCtFvcpFxeyG">ℹ️ <span data-i18n="poi.feedback.type.info" data-page-node-id="1GNKR1cQePtNM4aa93XZO6">信息错误</span></button>
+                    <button class="poi-fb-type" data-type="other" data-page-node-id="Tgwr5cRgMcgkHdsWkrYZ8G">📝 <span data-i18n="poi.feedback.type.other" data-page-node-id="Itiky2QTmm2HN1jDFcSj8A">其他</span></button>
+                </div>
+                <div class="lf-field" data-page-node-id="BQA7WPvZNiNYFTy68EMkUL">
+                    <label data-i18n="poi.feedback.text" data-page-node-id="ANsR0kqNSOU8hcunZkX8um">备注</label>
+                    <textarea id="poiFeedbackText" maxlength="100" rows="3" placeholder="请描述问题（100 字以内）" data-i18n-ph="poi.feedback.text.ph"></textarea>
+                    <span class="poi-fb-count" data-page-node-id="OUFwRHn0XhhaDW4Q5PKuhB"><i id="poiFeedbackCount" data-page-node-id="3Kbc3DD5agY0yyvEOVfkn8">0</i>/100</span>
+                </div>
+                <button class="btn-primary lf-submit" id="poiFeedbackSubmit" data-i18n="poi.feedback.submit" data-page-node-id="2YhDWTdxoLDC2S5YEXk9kp">提交反馈</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS: 地图框架核心库 -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- 校园数据 -->
+    <script src="js/campus-data.js?v=98"></script>
+    <!-- 院系·专业固定数据（注册必填，防乱填） -->
+    <script src="js/college-data.js?v=98"></script>
+    <!-- 路由引擎（A* 最短路 / 备选 Yen / 导览 TSP / 最近 POI；暴露全局 Routing） -->
+    <script src="js/routing.js?v=98"></script>
+    <!-- 云端同步客户端（后端不可用时自动降级本地） -->
+    <script src="js/api.js?v=98"></script>
+    <!-- 多语言框架（10 种语言，默认简体中文） -->
+    <script src="js/i18n.js?v=98"></script>
+    <!-- 本地存储 + 应用壳（Tab/个人中心/设置） -->
+    <script src="js/appshell.js?v=98"></script>
+    <!-- 权限中心（预授权引导 / 隐私与权限页 / 拒绝后指引） -->
+    <script src="js/permissions.js?v=98"></script>
+    <!-- 账户中心（注册 / 登录 / 数据隔离） -->
+    <script src="js/auth.js?v=98"></script>
+    <!-- 失物招领（v3.21：移到 tab 懒加载，首屏不下载） -->
+    <!-- <script src="js/lostfound.js?v=98"></script> -->
+    <!-- 聊天（v3.21：移到 tab 懒加载，首屏不下载） -->
+    <!-- <script src="js/chat.js?v=98"></script> -->
+    <!-- Iconsax 免费组件库（Rounded / Linear，图标类别按需加载） -->
+    <script type="module" src="/vendor/iconsax/index.js"></script>
+    <!-- 应用逻辑 -->
+    <script src="js/app.js?v=98"></script>
+</body>
+</html>
