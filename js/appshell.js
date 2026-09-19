@@ -356,7 +356,7 @@ const AppShell = {
                     upd.classList.remove('busy');
                     upd.textContent = '已最新';
                     const desc = document.getElementById('updateDesc');
-                    if (desc) desc.textContent = '已是最新版本 v3.37（' + new Date().toLocaleDateString('zh-CN') + '）';
+                    if (desc) desc.textContent = '已是最新版本 v3.38（' + new Date().toLocaleDateString('zh-CN') + '）';
                     if (typeof showToast === 'function') showToast('已是最新版本', 'success', 1600);
                     if (navigator.serviceWorker) {
                         navigator.serviceWorker.getRegistrations?.()
@@ -873,6 +873,20 @@ const AppShell = {
                 setAurora(buttons[next].dataset.aurora);
             });
             syncAurora();
+        }
+
+        // ---- v3.38 项目源码：点击复制仓库地址（失败则打开）----
+        const btnGithub = document.getElementById('btnGithub');
+        if (btnGithub) {
+            btnGithub.addEventListener('click', async () => {
+                const url = 'https://github.com/ruizailaile/wenxuan-campus-map';
+                try {
+                    await navigator.clipboard.writeText(url);
+                    showToast('项目地址已复制，去浏览器打开即可', 'success', 2600);
+                } catch (e) {
+                    window.open(url, '_blank');
+                }
+            });
         }
 
         // ---- 液态玻璃自定义：透明度 / 模糊度滑块（实时写入 :root，持久化本机） ----

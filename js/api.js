@@ -85,9 +85,22 @@ const CampusAPI = {
             if (PATH_NODES[b.id]) PATH_NODES[b.id] = [b.x, b.y];
         });
         // 云端共建点接入路网（复用本地入口节点逻辑）
+        // v3.38：59 点官方化后，凡无自身路网节点的点统一挂 entry 入口
         BUILDINGS
-            .filter(b => b.id.startsWith('b_user_') && !PATH_NODES['entry_' + b.id])
+            .filter(b => !PATH_NODES[b.id] && !PATH_NODES['entry_' + b.id])
             .forEach(b => addEntryNodeForBuilding(b.id, b.x, b.y));
+
+        // v3.38：59 点已内化为官方数据，清理本机遗留的旧编辑标记（云端为唯一事实源）
+        const hasLocalEdits = (Store.data.custom || []).length
+            || Object.keys(Store.data.poiOverrides || {}).length
+            || (Store.data.poiDeleted || []).length;
+        if (hasLocalEdits) {
+            Store.data.custom = [];
+            Store.data.poiOverrides = {};
+            Store.data.poiDeleted = [];
+            Store.save();
+            console.log('[api] 已清理本机遗留编辑标记（数据已官方化）');
+        }
     },
 
     /** 首次联网：把本机的自定义/修改/删除上传到云端（只执行一次；需登录） */

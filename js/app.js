@@ -367,6 +367,40 @@ function updateOverviewPiP() {
     rect.style.height = Math.max(3, yBot - yTop) + '%';
 }
 
+/** v3.38：路网连通性修复（官方化的 59 点中多数只有节点、没有边）。
+ *  策略：以学院大门为起点求主连通分量；不在主分量里的点，
+ *  连到主分量内最近的节点并立即并入主分量（保证全图可达，无孤岛链）。 */
+function ensureEntryNodes() {
+    const adj = {};
+    PATH_EDGES.forEach(([a, b2]) => {
+        if (!PATH_NODES[a] || !PATH_NODES[b2]) return;
+        (adj[a] = adj[a] || []).push(b2);
+        (adj[b2] = adj[b2] || []).push(a);
+    });
+    // 主连通分量（BFS from 学院大门）
+    const main = new Set(['b_gate_main']);
+    const queue = ['b_gate_main'];
+    while (queue.length) {
+        const cur = queue.shift();
+        (adj[cur] || []).forEach(n => { if (!main.has(n)) { main.add(n); queue.push(n); } });
+    }
+    // 孤岛点 → 连到主分量最近节点（补完即并入，供后续点使用）
+    BUILDINGS.forEach(b => {
+        if (!PATH_NODES[b.id]) PATH_NODES[b.id] = [b.x, b.y];
+        if (main.has(b.id)) return;
+        let minD = Infinity, nearest = null;
+        for (const nid of main) {
+            const d = distance([b.x, b.y], PATH_NODES[nid]);
+            if (d < minD) { minD = d; nearest = nid; }
+        }
+        if (nearest) {
+            PATH_EDGES.push([b.id, nearest]);
+            main.add(b.id);
+            (adj[b.id] = adj[b.id] || []).push(nearest);
+        }
+    });
+}
+
 /** 恢复用户自定义地标：加入 BUILDINGS / 渲染标记 / 挂导航节点 */
 function restoreCustomBuildings() {
     Store.data.custom.forEach(b => {
@@ -2249,6 +2283,7 @@ window.addEventListener('DOMContentLoaded', async () => {
         applyPoiEdits();        // 本地模式：应用本机编辑（删除/修改官方地点）
         restoreCustomBuildings();
     }
+    ensureEntryNodes();   // v3.38：为缺少路网节点的地点（官方化的 59 点）挂入口
     renderBuildings();
     renderCategoryFilters();
     renderBuildingList();

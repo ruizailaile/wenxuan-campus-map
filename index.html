@@ -48,7 +48,7 @@
     </script>
     <!-- Leaflet CSS: 地图框架的样式表 -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" data-page-node-id="LHpUcZSQVCra2cLMO6y46e" />
-    <link rel="stylesheet" href="css/style.css?v=98" data-page-node-id="vETb8wGHrDndJhDJCQsQrn" />
+    <link rel="stylesheet" href="css/style.css?v=101" data-page-node-id="vETb8wGHrDndJhDJCQsQrn" />
 </head>
 <body data-tab="map" data-page-node-id="zmIbHMahCaLcmM5axN7AkS">
     <!-- ============ 启动屏（冷启动过渡） ============ -->
@@ -193,7 +193,7 @@
 
             <!-- 小地图：放大浏览时显示整校 + 当前取景框，点按跳转 -->
             <div id="mapOverview" class="map-overview" role="img" aria-label="校园全貌小地图" data-page-node-id="SkCnAgZyA7TgxYV6aFH7W4">
-                <img src="assets/campus-map.jpg?v=98" alt="" data-page-node-id="Dk9NVIIkBaJEpJkbgoCZI9">
+                <img src="assets/campus-map.jpg?v=101" alt="" data-page-node-id="Dk9NVIIkBaJEpJkbgoCZI9">
                 <div class="ov-rect" data-page-node-id="HVuRz8kWmMnu9yNuluvXt5"></div>
             </div>
 
@@ -523,7 +523,7 @@
                 <div class="set-item" data-page-node-id="KozALydvOxkAfQsLS1Mq11">
                     <div class="set-text" data-page-node-id="HKY7peEltwO16UIGTUDsgJ">
                         <div class="set-name" data-i18n="settings.update" data-page-node-id="4OX3CDQaufzqWKZpVkfzA9">检查更新</div>
-                        <div class="set-desc" id="updateDesc" data-i18n="settings.update.latest" data-page-node-id="qeveURzL8VmzMwp4nzDlxS">当前为优化版 v3.37</div>
+                        <div class="set-desc" id="updateDesc" data-i18n="settings.update.latest" data-page-node-id="qeveURzL8VmzMwp4nzDlxS">当前为优化版 v3.38</div>
                     </div>
                     <button class="set-check" id="btnUpdate" data-i18n="settings.check" data-page-node-id="dj8G5srAVJHp2ghP0bFTZz">检查</button>
                 </div>
@@ -533,6 +533,12 @@
                         <div class="set-desc" data-i18n="settings.author.desc" data-page-node-id="SjIm2MlZYLoVCiXvJnE9i9">锐仔来了 · 独立开发与维护</div>
                     </div>
                 </div>
+                <button class="set-item set-btn" id="btnGithub" data-page-node-id="ghsrc0001">
+                    <span class="ei-icon" data-page-node-id="ghsrc0002"><iconsax-icon name="global" type="linear" size="20" aria-hidden="true"></iconsax-icon></span>
+                    <span data-i18n="settings.source" data-page-node-id="ghsrc0003">项目源码</span>
+                    <span class="ei-desc" data-page-node-id="ghsrc0004">github.com/ruizailaile/wenxuan-campus-map</span>
+                    <span class="ei-arrow" data-page-node-id="ghsrc0005">›</span>
+                </button>
                 <button class="set-item set-btn" id="btnFeedback" data-page-node-id="nKl1j8AspnbHTbFlAZA5q5">
                     <span class="ei-icon" data-page-node-id="2AZmMgoYeXV8xupSwjbRJS"><iconsax-icon name="message-question" type="linear" size="20" aria-hidden="true"></iconsax-icon></span><span data-i18n="settings.feedback" data-page-node-id="riuwUXCq6XRGH6ee7cogHC">地图反馈</span><span class="set-desc" style="margin-left:auto" data-page-node-id="LSmFAHuxm2IpAVCIDP0Dds">Q群 1094409084</span><span class="ei-arrow" data-page-node-id="heWcYQEiPx4WkEr7uNXLo2">›</span>
                 </button>
@@ -550,7 +556,7 @@
                 </button>
                 <div class="set-item set-static" data-page-node-id="lRwJk1lE2WHtpkxDXAZcXG">
                     <div class="set-text" data-page-node-id="KENNFV0dFRTpLagSlFswxE">
-                        <div class="set-name" data-page-node-id="R40DUFTb7fKqW8KAUG0f0B">校园导览 v3.37 墨石版 · 锐仔来了</div>
+                        <div class="set-name" data-page-node-id="R40DUFTb7fKqW8KAUG0f0B">校园导览 v3.38</div>
                         <div class="set-desc" data-i18n="settings.version.desc" data-page-node-id="f6cyskB5r81Q7p4V32Soiu">四川文轩职业学院遂宁校区 · 地图数据仅供参考，以现场指引为准</div>
                     </div>
                 </div>
@@ -1035,28 +1041,28 @@
     <!-- Leaflet JS: 地图框架核心库 -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- 校园数据 -->
-    <script src="js/campus-data.js?v=98"></script>
+    <script src="js/campus-data.js?v=101"></script>
     <!-- 院系·专业固定数据（注册必填，防乱填） -->
-    <script src="js/college-data.js?v=98"></script>
+    <script src="js/college-data.js?v=101"></script>
     <!-- 路由引擎（A* 最短路 / 备选 Yen / 导览 TSP / 最近 POI；暴露全局 Routing） -->
-    <script src="js/routing.js?v=98"></script>
+    <script src="js/routing.js?v=101"></script>
     <!-- 云端同步客户端（后端不可用时自动降级本地） -->
-    <script src="js/api.js?v=98"></script>
+    <script src="js/api.js?v=101"></script>
     <!-- 多语言框架（10 种语言，默认简体中文） -->
-    <script src="js/i18n.js?v=98"></script>
+    <script src="js/i18n.js?v=101"></script>
     <!-- 本地存储 + 应用壳（Tab/个人中心/设置） -->
-    <script src="js/appshell.js?v=98"></script>
+    <script src="js/appshell.js?v=101"></script>
     <!-- 权限中心（预授权引导 / 隐私与权限页 / 拒绝后指引） -->
-    <script src="js/permissions.js?v=98"></script>
+    <script src="js/permissions.js?v=101"></script>
     <!-- 账户中心（注册 / 登录 / 数据隔离） -->
-    <script src="js/auth.js?v=98"></script>
+    <script src="js/auth.js?v=101"></script>
     <!-- 失物招领（v3.21：移到 tab 懒加载，首屏不下载） -->
-    <!-- <script src="js/lostfound.js?v=98"></script> -->
+    <!-- <script src="js/lostfound.js?v=101"></script> -->
     <!-- 聊天（v3.21：移到 tab 懒加载，首屏不下载） -->
-    <!-- <script src="js/chat.js?v=98"></script> -->
+    <!-- <script src="js/chat.js?v=101"></script> -->
     <!-- Iconsax 免费组件库（Rounded / Linear，图标类别按需加载） -->
     <script type="module" src="/vendor/iconsax/index.js"></script>
     <!-- 应用逻辑 -->
-    <script src="js/app.js?v=98"></script>
+    <script src="js/app.js?v=101"></script>
 </body>
 </html>

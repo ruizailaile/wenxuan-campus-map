@@ -676,12 +676,9 @@ app.use('/vendor/iconsax', express.static(path.join(__dirname, 'node_modules', '
 app.use(express.static(__dirname, {
     index: 'index.html',
     setHeaders(res, filePath) {
-        // SW 与 html 不缓存，保证发版即生效；其余静态资源短缓存
-        if (/sw\.js$|index\.html$/.test(filePath)) {
-            res.setHeader('Cache-Control', 'no-cache');
-        } else {
-            res.setHeader('Cache-Control', 'public, max-age=300');
-        }
+        // v3.38：本地开发服务器统一 no-cache（改代码刷新即生效）；
+        // 生产环境缓存由 Cloudflare Pages 处理，版本更新靠 index.html 的 ?v= 参数。
+        res.setHeader('Cache-Control', 'no-cache');
     },
 }));
 
